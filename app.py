@@ -889,18 +889,18 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
    if n_clicks is None:
         return ''
    if not recipe_name:
-        return html.Div('Recipe name is required!',id='error-message')
+        return html.Div('Recipe name is required!', style={'color': 'red'})
    if not data:
-        return html.Div('At least one oil must be selected!',id='error-message')
+        return html.Div('At least one oil must be selected!', style={'color': 'red'})
    else:
      for row in data:
        if row['Grams'] == 0:
-         return html.Div(f'Error: Grams value for {row["Oil"]} cannot be 0!',id='error-message')
+         return html.Div(f'Error: Grams value for {row["Oil"]} cannot be 0!', style={'color': 'red'})
 
    if pcsf_oil_data:
       for row in pcsf_oil_data:
         if row['%TOW'] == 0:
-          return html.Div(f'Error: %TOW for PCSF Oil: {row["PCSF Oil"]} cannot be 0!',id='error-message')
+          return html.Div(f'Error: %TOW for PCSF Oil: {row["PCSF Oil"]} cannot be 0!', style={'color': 'red'})
  
    def convert_to_number(value):
        try:
