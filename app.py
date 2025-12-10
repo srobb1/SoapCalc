@@ -1387,21 +1387,58 @@ from slugify import slugify
 )
 def export_recipe(n_clicks, selected_oils, recipe_name, recipe_notes, unit, lye_type, lye_discount, method_calculation, total_weight, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input,pcsf_data,additives_data,other_ingredients_data):
     if n_clicks > 0:
+        # Convert numeric string values to numbers for selected_oils
+        cleaned_selected_oils = []
+        for oil in selected_oils:
+            cleaned_oil = oil.copy()
+            try:
+                cleaned_oil['Grams'] = float(oil['Grams']) if oil['Grams'] else 0
+            except (ValueError, TypeError):
+                cleaned_oil['Grams'] = 0
+            try:
+                cleaned_oil['Ounces'] = float(oil['Ounces']) if oil['Ounces'] else 0
+            except (ValueError, TypeError):
+                cleaned_oil['Ounces'] = 0
+            try:
+                cleaned_oil['Percent'] = float(oil['Percent']) if oil['Percent'] else 0
+            except (ValueError, TypeError):
+                cleaned_oil['Percent'] = 0
+            cleaned_selected_oils.append(cleaned_oil)
+        
+        # Convert numeric string values for PCSF oils
+        cleaned_pcsf_data = []
+        for oil in pcsf_data:
+            cleaned_oil = oil.copy()
+            try:
+                cleaned_oil['%TOW'] = float(oil['%TOW']) if oil['%TOW'] else 0
+            except (ValueError, TypeError):
+                cleaned_oil['%TOW'] = 0
+            cleaned_pcsf_data.append(cleaned_oil)
+        
+        # Convert numeric values for scalar fields
+        def to_number(val):
+            if val is None or val == '':
+                return None
+            try:
+                return float(val) if '.' in str(val) else int(val)
+            except (ValueError, TypeError):
+                return val
+        
         # Prepare the recipe data
         recipe_data = {
-            'selected_oils': selected_oils,
+            'selected_oils': cleaned_selected_oils,
             'recipe_name': recipe_name,
             'recipe_notes': recipe_notes,
             'unit': unit,
             'lye_type': lye_type,
-            'lye_discount': lye_discount,
+            'lye_discount': to_number(lye_discount),
             'method_calculation': method_calculation,
-            'total_weight': total_weight,
+            'total_weight': to_number(total_weight),
             'water_calculation': water_calculation,
-            'water_by_oil_input': water_by_oil_input,
-            'water_by_lye_input': water_by_lye_input,
+            'water_by_oil_input': to_number(water_by_oil_input),
+            'water_by_lye_input': to_number(water_by_lye_input),
             'water_lye_ratio_input': water_lye_ratio_input,
-            'pcsf-selected-oils-data' : pcsf_data,
+            'pcsf-selected-oils-data' : cleaned_pcsf_data,
             'additives-table' :  additives_data,
             'other-ingredients-table' :  other_ingredients_data 
         }
