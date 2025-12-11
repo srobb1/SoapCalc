@@ -553,6 +553,26 @@ def update_other_ingredients_table(n_clicks, contents, filename, data):
         return no_update
 
 
+def _update_dropdown_state(selected_items, stored_items, all_options):
+    """
+    Helper function to update dropdown state and maintain selection
+    
+    Args:
+        selected_items: Currently selected values
+        stored_items: Previously stored values
+        all_options: List of all available options
+    
+    Returns:
+        tuple: (all_options, updated_selected_items)
+    """
+    if selected_items is None:
+        selected_items = []
+    if stored_items is None:
+        stored_items = []
+    
+    updated_selected = list(set(stored_items + selected_items))
+    return all_options, updated_selected
+
 # Callback to update the pcsf dropdown options based on the data in the dropdown and selected oils
 @app.callback(
   Output('pcsf-selected-oils', 'options'),
@@ -562,15 +582,8 @@ def update_other_ingredients_table(n_clicks, contents, filename, data):
 )
 def update_pcsf_dropdown(selected_oils, stored_selected_oils):
   """Update PCSF (Post Cook Superfat) dropdown options and maintain selection state"""
-  if selected_oils is None:
-      selected_oils = []
-  if stored_selected_oils is None:
-      stored_selected_oils = []
-
   all_options = [{'label': i, 'value': i} for i in pcsf]
-  updated_selected_oils = list(set(stored_selected_oils + selected_oils))
-
-  return all_options, updated_selected_oils
+  return _update_dropdown_state(selected_oils, stored_selected_oils, all_options)
 
 
 # Callback to initialize and update the DataTable
@@ -650,15 +663,8 @@ def show_hide_total_weight_input(method):
 )
 def update_dropdown(selected_oils, stored_selected_oils):
   """Update recipe oils dropdown options and maintain selection state"""
-  if selected_oils is None:
-      selected_oils = []
-  if stored_selected_oils is None:
-      stored_selected_oils = []
-
   all_options = [{'label': oil, 'value': oil} for oil in oil_prop_df.index.tolist()]
-  updated_selected_oils = list(set(stored_selected_oils + selected_oils))
-
-  return all_options, updated_selected_oils
+  return _update_dropdown_state(selected_oils, stored_selected_oils, all_options)
 
 
 @app.callback(
