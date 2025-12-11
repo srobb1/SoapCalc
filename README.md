@@ -24,7 +24,7 @@ A web-based soap recipe calculator built with Dash that helps soap makers calcul
 ### Quick Start
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/srobb1/SoapCalc
 cd soap-calc-python
 ```
 
