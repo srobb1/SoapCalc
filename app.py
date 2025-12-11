@@ -109,7 +109,8 @@ other_ingredient_initial_rows = [
 # Initialize the app
 app = Dash(__name__, 
            external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'],
-           suppress_callback_exceptions=True)
+           suppress_callback_exceptions=True,
+           title="Sofia's Soap Calculator")
 
 # App layout
 app.layout = html.Div([
