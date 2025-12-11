@@ -76,15 +76,15 @@ additive_table = dash_table.DataTable(
     style_cell={
         'textAlign': 'left',
         'padding': '10px',
-        'font-size': '13px',
-        'text-wrap': 'stable'
+        'fontSize': '13px',
+        'whiteSpace': 'normal'
     },
-    style_table={ 'border': '1px solid black', 'borderCollapse': 'collapse', 'text-wrap': 'stable' ,'overflowX': 'hidden'},
+    style_table={ 'border': '1px solid black', 'borderCollapse': 'collapse', 'whiteSpace': 'normal' ,'overflowX': 'hidden'},
     style_header={
-          'font-size': '13px',
-          'font-weight': 'bold',
-          'padding-left': '10px',
-          'background-color' : '#fafafa'
+          'fontSize': '13px',
+          'fontWeight': 'bold',
+          'paddingLeft': '10px',
+          'backgroundColor' : '#fafafa'
     },
     style_data_conditional=style_data_conditional,    
     style_cell_conditional=[
@@ -117,7 +117,7 @@ app.layout = html.Div([
     html.Div([
     dbc.Row(
         dbc.Col(
-            html.H1("Sofia's Soap Calculator", style={'textAlign': 'left', 'color': '#000', 'padding-left': '10px'}),
+            html.H1("Sofia's Soap Calculator", style={'textAlign': 'left', 'color': '#000', 'paddingLeft': '10px'}),
             width=4
         )
     ),
@@ -126,7 +126,7 @@ app.layout = html.Div([
             html.Br(),
             html.Hr(),
             html.H3("Your Recipe:"),
-            dcc.Upload(id='upload-recipe-json',children=html.Button('Upload Recipe (JSON)', style={'border': 'none', 'border-radius': '0.25rem', 'padding': '0.5rem 1rem', 'background-color': '#007bff', 'color': 'white', 'font-size': '1rem', 'cursor': 'pointer'}),multiple=False,style={'display': 'inline-block'}),
+            dcc.Upload(id='upload-recipe-json',children=html.Button('Upload Recipe (JSON)', style={'border': 'none', 'borderRadius': '0.25rem', 'padding': '0.5rem 1rem', 'backgroundColor': '#007bff', 'color': 'white', 'fontSize': '1rem', 'cursor': 'pointer'}),multiple=False,style={'display': 'inline-block'}),
             html.Div(id='upload-recipe-json-output'),  # Output for upload feedback
             html.Hr(),
         ], width=12)
@@ -134,14 +134,14 @@ app.layout = html.Div([
     dbc.Row(
         dbc.Col(
             html.Div([
-                dcc.Input(id='recipe-name', placeholder='Enter recipe name', type='text', style={'width': '30%', 'height': '30px'}, required=True),
+                dcc.Input(id='recipe-name', placeholder='Enter recipe name', type='text', value='', style={'width': '30%', 'height': '30px'}, required=True),
             ])
         )
     ),
     dbc.Row(
         dbc.Col(
             html.Div([
-                dcc.Textarea(id='recipe-notes', placeholder='Enter recipe notes', style={'width': '30%', 'height': '80px', 'resize': 'vertical', 'padding': '4px'}),
+                dcc.Textarea(id='recipe-notes', placeholder='Enter recipe notes', value='', style={'width': '30%', 'height': '80px', 'resize': 'vertical', 'padding': '4px'}),
             ])
         )
     ),
@@ -166,7 +166,7 @@ app.layout = html.Div([
                         value='Grams',
                         id='unit',
                         labelStyle={'display': 'flex'},
-                        style={'padding-left': '10px'}
+                        style={'paddingLeft': '10px'}
                     )
                 ]),
                 dbc.Tooltip(
@@ -187,7 +187,7 @@ app.layout = html.Div([
                         value='NaOH',
                         id='lye_type',
                         labelStyle={'display': 'flex'},
-                        style={'padding-left': '10px'}
+                        style={'paddingLeft': '10px'}
                     )
                 ]),
                 dbc.Tooltip(
@@ -212,7 +212,7 @@ app.layout = html.Div([
             html.Div([
                 html.Label(html.Strong('Lye Discount:'), id='Discount-tooltip'),
                 html.Br(),
-                dcc.Input(id='lye_discount', type='number', value='5', style={'width': '45px', 'height': '20px', 'margin-left': '25px'}),
+                dcc.Input(id='lye_discount', type='number', value='5', style={'width': '45px', 'height': '20px', 'marginLeft': '25px'}),
                 html.Label('%'),
                 dbc.Tooltip(
                     "A typical value is between 3 and 15. This is the percentage of lye you want reduced to allow for this percentage of un-saponified oils to remain",
@@ -262,14 +262,14 @@ app.layout = html.Div([
                                                         id='water_by_oil_input',
                                                         type='number',
                                                         value='38',
-                                                        style={'width': '45px', 'height': '20px', 'margin-left': '5px'}
+                                                        style={'width': '45px', 'height': '20px', 'marginLeft': '5px'}
                                                     )
                                                 ],
-                                                style={'display': 'flex', 'align-items': 'center'}
+                                                style={'display': 'flex', 'alignItems': 'center'}
                                             ),
                                             html.Label('%'),
                                         ],
-                                        style={'display': 'inline-flex', 'align-items': 'center'}
+                                        style={'display': 'inline-flex', 'alignItems': 'center'}
                                     ),
                                     'value': 'water_by_oil'
                                 },
@@ -283,14 +283,14 @@ app.layout = html.Div([
                                                         id='water_by_lye_input',
                                                         type='number',
                                                         value='33',
-                                                        style={'width': '45px', 'height': '20px', 'margin-left': '5px'}
+                                                        style={'width': '45px', 'height': '20px', 'marginLeft': '5px'}
                                                     )
                                                 ],
-                                                style={'display': 'flex', 'align-items': 'center'}
+                                                style={'display': 'flex', 'alignItems': 'center'}
                                             ),
                                             html.Label('%'),
                                         ],
-                                        style={'display': 'inline-flex', 'align-items': 'center'}
+                                        style={'display': 'inline-flex', 'alignItems': 'center'}
                                     ),
                                     'value': 'water_by_lye'
                                 },
@@ -304,19 +304,19 @@ app.layout = html.Div([
                                                         id='water_lye_ratio_input',
                                                         type='text',
                                                         value='2:1',
-                                                        style={'width': '45px', 'height': '20px', 'margin-left': '5px'}
+                                                        style={'width': '45px', 'height': '20px', 'marginLeft': '5px'}
                                                     )
                                                 ],
-                                                style={'display': 'flex', 'align-items': 'center'}
+                                                style={'display': 'flex', 'alignItems': 'center'}
                                             ),
                                         ],
-                                        style={'display': 'inline-flex', 'align-items': 'center'}
+                                        style={'display': 'inline-flex', 'alignItems': 'center'}
                                     ),
                                     'value': 'water_lye_ratio'
                                 },
                             ],
                             value='water_by_oil',
-                            labelStyle={'display': 'block', 'margin-right': '10px'}
+                            labelStyle={'display': 'block', 'marginRight': '10px'}
                         ),
                     ]
                 )
@@ -339,7 +339,7 @@ app.layout = html.Div([
                     html.Label([
                         html.Strong('Select your recipe oils:'),
                         dcc.Dropdown(id='selected-oils', multi=True)
-                    ], style={"width": "100%", 'padding-left': '10px'}),
+                    ], style={"width": "100%", 'paddingLeft': '10px'}),
                 ]),
                 width=4
             ),
@@ -357,27 +357,27 @@ app.layout = html.Div([
                     editable=True,
                     row_deletable=True,
                     style_header={
-                        'font-size': '13px',
-                        'font-weight': 'bold',
-                        'padding-left': '10px',
+                        'fontSize': '13px',
+                        'fontWeight': 'bold',
+                        'paddingLeft': '10px',
                     },
                     style_cell={
                         'text-align': 'left',
-                        'padding-left': '10px',
-                        'font-size': '13px',
+                        'paddingLeft': '10px',
+                        'fontSize': '13px',
                     },
                 ),
             ],
-                style={'padding-left': '10px'},  # Add left padding here
+                style={'paddingLeft': '10px'},  # Add left padding here
             ),
             html.Div(id='selected-oils-updated'),
-            html.Div(id='oils-totals', style={'padding-left': '10px', 'margin-top': '10px', 'font-weight': 'bold'}),
+            html.Div(id='oils-totals', style={'paddingLeft': '10px', 'marginTop': '10px', 'fontWeight': 'bold'}),
         ], width=4)
     ]),
     dbc.Row(
         dbc.Col([
             html.Br(), html.Hr(), html.Br(),
-        ], width=3, style={'padding-left': '25px'})
+        ], width=3, style={'paddingLeft': '25px'})
     ),
     dbc.Row(
         [
@@ -387,7 +387,7 @@ app.layout = html.Div([
                     html.Label([
                         html.Strong('Select your Post Cook Superfat Oils:'),
                         dcc.Dropdown(id='pcsf-selected-oils', multi=True)
-                    ], style={"width": "100%", 'padding-left': '10px'}),
+                    ], style={"width": "100%", 'paddingLeft': '10px'}),
                 ]),
                 width=4
             ),
@@ -408,14 +408,14 @@ app.layout = html.Div([
                     editable=True,
                     row_deletable=True,
                     style_header={
-                        'font-size': '13px',
-                        'font-weight': 'bold',
-                        'padding-left': '10px',
+                        'fontSize': '13px',
+                        'fontWeight': 'bold',
+                        'paddingLeft': '10px',
                     },
                     style_cell={
                         'text-align': 'left',
-                        'padding-left': '10px',
-                        'font-size': '13px',
+                        'paddingLeft': '10px',
+                        'fontSize': '13px',
                     },
                     style_data_conditional=[
                         {
@@ -428,7 +428,7 @@ app.layout = html.Div([
                     ],
                 ),
                 html.Div(id='pcsf-selected-oils-updated'),
-            ], style={"width": "100%", 'padding-left': '10px'}),
+            ], style={"width": "100%", 'paddingLeft': '10px'}),
             width=2
         )
     ]),
@@ -448,7 +448,7 @@ app.layout = html.Div([
                     title="Additives",
                     item_id="additives-accordion"
                 )
-            ], active_item="additives-accordion", style={'margin-bottom': '20px'})
+            ], active_item="additives-accordion", style={'marginBottom': '20px'})
         ], width=6),
     ]),
     dbc.Row(
@@ -471,20 +471,20 @@ app.layout = html.Div([
         style_cell={
           'textAlign': 'left',
           'padding': '10px',
-          'font-size': '13px',
+          'fontSize': '13px',
         },
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
         style_header={
-          'font-size': '13px',
-          'font-weight': 'bold',
-          'padding-left': '10px',
-          'background-color' : '#fafafa'
+          'fontSize': '13px',
+          'fontWeight': 'bold',
+          'paddingLeft': '10px',
+          'backgroundColor' : '#fafafa'
         },
         #style_table={'overflowX': 'auto'}
       ),
       html.Div(
         dbc.Button("Add Row", id="add-row-button", color="primary"),
-        style={'display': 'flex', 'justify-content': 'flex-end', 'margin-top': '20px'}
+        style={'display': 'flex', 'justifyContent': 'flex-end', 'marginTop': '20px'}
       ),
       #html.Button('Add Row', id='add-row-button' ,style={'display':'right'}),
       ],width=4)
@@ -498,8 +498,8 @@ app.layout = html.Div([
     dbc.Row(
         dbc.Col(
             html.Div(
-                dbc.Button('Generate Recipe', id='get-recipe', n_clicks=0, style={'background-color':'orange', 'color':'black'}),
-                #style={'padding-left': '10px'}
+                dbc.Button('Generate Recipe', id='get-recipe', n_clicks=0, style={'backgroundColor':'orange', 'color':'black'}),
+                #style={'paddingLeft': '10px'}
             ),
             width=4
         )
@@ -525,7 +525,7 @@ app.layout = html.Div([
           html.Div(id='export-recipe-json-output')  # Output for export feedback
       ], width=4)
     )],className='no-print',style={'width': '100%'}),
-], style={'padding-left': '20px','width': '100%'})
+], style={'paddingLeft': '20px','width': '100%'})
 
 @app.callback(
     Output('other-ingredients-table', 'data'),
@@ -748,8 +748,8 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
             if 'json' in filename:
                 recipe = json.loads(decoded)
                 new_data = recipe.get('selected_oils', [])
-                recipe_name = recipe.get('recipe_name', '')
-                recipe_notes = recipe.get('recipe_notes', '')
+                recipe_name = recipe.get('recipe_name', '') or ''
+                recipe_notes = recipe.get('recipe_notes', '') or ''
                 unit = recipe.get('unit', '')
                 lye_type = recipe.get('lye_type', '')
                 lye_discount = recipe.get('lye_discount', '')
@@ -989,7 +989,7 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
       fats_table = create_fats_table(fats)
 
       return  html.Div([
-          dbc.Button('Print Recipe', id='print-button', n_clicks=0, className="no-print", style={'background-color':'primary', 'color':'white','padding-right': '38px','padding-left': '38px'}),
+          dbc.Button('Print Recipe', id='print-button', n_clicks=0, className="no-print", style={'backgroundColor':'primary', 'color':'white','padding-right': '38px','paddingLeft': '38px'}),
           html.Div(id='print-trigger', style={'display': 'none'}),
           html.Br(className="no-print"),
           html.Br(className="no-print"),
