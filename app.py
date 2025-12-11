@@ -25,8 +25,21 @@ unsaturated_fats = ("Oleic","Linoleic","Linolenic","Ricinoleic")
 dt_oil_columns = ['Oil', 'NaOH SAP', 'KOH SAP', 'Grams', 'Ounces', 'Percent']
 pcsf=("Argan Oil","Apricot Kernal Oil", "Coconut Oil","Olive Oil","Sweet Almond Oil","Cocoa Butter","Shea Butter")
 
-# Import additive data from separate module
+# Import additive data and calculator functions
 from additives_data import htfhp_additive_rowData, htfhp_tooltips, section_colors
+from recipe_calculator import (
+    validate_recipe_inputs, 
+    calculate_lye_requirements,
+    calculate_water_requirements,
+    calculate_soap_properties,
+    create_other_ingredients_table,
+    create_additives_details,
+    create_overview_table,
+    create_oils_table,
+    create_summary_table,
+    create_properties_table,
+    create_fats_table
+)
 
 htfhp_tooltip_data = [
     {column: {'value': str(row[column]), 'type': 'text'} for column in row}
@@ -851,74 +864,24 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
 
 )
 def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input, lye_type, n_clicks, pcsf_oil_data, additives_data, other_ingredients_data):
+   """Generate complete recipe table with all calculations and formatting"""
    if n_clicks is None:
         return ''
-   if not recipe_name:
-        return html.Div('Recipe name is required!', style={'color': 'red'})
-   if not data:
-        return html.Div('At least one oil must be selected!', style={'color': 'red'})
-   else:
-     for row in data:
-       if row['Grams'] == 0:
-         return html.Div(f'Error: Grams value for {row["Oil"]} cannot be 0!', style={'color': 'red'})
-
-   if pcsf_oil_data:
-      for row in pcsf_oil_data:
-        if row['%TOW'] == 0:
-          return html.Div(f'Error: %TOW for PCSF Oil: {row["PCSF Oil"]} cannot be 0!', style={'color': 'red'})
+   
+   # Validate inputs
+   error = validate_recipe_inputs(recipe_name, data, pcsf_oil_data)
+   if error:
+        return error
  
-   def convert_to_number(value):
-       try:
-          return float(value)
-       except (ValueError, TypeError):
-          return 0
-   
-   # Extract additive values from the additives_data
-   additives = {row['Additive']: convert_to_number(row['Value']) for row in additives_data}
-   finished_soap = additives.get('Finished Soap', 0)
-   eugenol = additives.get('Eugenol', 0)
-   sodium_lactate = additives.get('Sodium Lactate', 0)
-   sodium_chloride = additives.get('Sodium Chloride', 0)
-   sorbitol = additives.get('Sorbitol', 0)
-   cetyl_alcohol = additives.get('Cetyl Alcohol', 0)
-   citric_acid = additives.get('Citric Acid', 0)
-   honey = additives.get('Honey', 0)
-   yogurt = additives.get('Yogurt', 0)
-
-   # Remove empty rows
-   other_ingredients_filtered_data = [row for row in other_ingredients_data if any(row.values())]
-   
-   # Convert to DataFrame
-   other_df = pd.DataFrame(other_ingredients_filtered_data)
-
-   other_ingredient_recipe_table = dash_table.DataTable(
-          columns=other_ingredient_columns,
-          data=other_df.to_dict('records'),
-          style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', "white-space": "pre-wrap"},
-          style_cell={'textAlign': 'center', 'padding': '8px',"white-space": "pre-wrap"},
-          style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
-      )
+   # Create other ingredients table
+   other_ingredient_recipe_table = create_other_ingredients_table(
+       other_ingredients_data, other_ingredient_columns
+   )
 
    if n_clicks > 0 and data:
-      lye_needed = 0
-      lye_needed_naoh = 0
-      lye_needed_koh = 0
       lye_discount = float(lye_discount)
-      total_oil_weight = 0
-
-      # Conversion factors
-      naoh_to_koh = 40.00 / 56.11  # NaOH to KOH conversion factor
-
-      recipe_details = []
-      properties = {
-          'Hardness': 0,
-          'Cleansing': 0,
-          'Condition': 0,
-          'Bubbly': 0,
-          'Creamy': 0,
-          'Iodine' : 0,
-          'INS' : 0,
-      }
+      
+      # Define property ranges
       ranges = {
         "Hardness": "29 - 54",
         "Cleansing": "12 - 22",
@@ -928,91 +891,23 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
         "Iodine": "41 - 70",
         "INS": "136 - 165"
       }
-      fats = {
-          'Lauric': 0,
-          'Myristic': 0,
-          'Palmitic': 0,
-          'Stearic': 0,
-          'Oleic': 0,
-          'Linoleic': 0,
-          'Linolenic': 0,
-          'Ricinoleic': 0,
-      }
-
-      # Define lye proportions for dual
-      naoh_proportion = 0.95
-      koh_proportion = 0.05 
-       
-      for row in data:
-          weight_grams = float(row['Grams'])
-          weight_ounces = weight_grams / 28.3495
-          percent = float(row['Percent'])
-
-          total_oil_weight += weight_grams
-
-          sap_value = float(row['NaOH SAP'])
-
-          #lye_needed += sap_value * weight_grams
-          #total_oil_weight += weight_grams
-          if lye_type == 'NaOH':
-              # Use SAP value for NaOH
-              lye_needed += sap_value * weight_grams
-          elif 'KOH' in lye_type:
-              # Adjust SAP value for KOH
-              sap_value /= naoh_to_koh
-              if lye_type == 'KOH_90':
-                  sap_value *= 1.10
-              lye_needed += sap_value * weight_grams
-          elif lye_type == 'dual_lye':
-              # Calculate for NaOH
-              naoh_sap_value = sap_value
-              lye_needed_naoh += naoh_sap_value * weight_grams * naoh_proportion
-              
-              # Calculate for KOH
-              koh_sap_value = sap_value / naoh_to_koh
-              lye_needed_koh += koh_sap_value * weight_grams * koh_proportion
-              
-              # Combine both lye needs
-              lye_needed = lye_needed_naoh + lye_needed_koh
       
-          # Add properties from the oil_prop_df
-          for prop in properties.keys():
-              properties[prop] += round(float(oil_prop_df.loc[row['Oil'], prop]) * (percent/100),0)
-
-          for fat in fats.keys():
-              fats[fat] += round(float(oil_fat_df.loc[row['Oil'], fat])  * (percent/100) ,0)
-
-          recipe_details.append({
-              'Oil': row['Oil'],
-              'Grams': weight_grams,
-              'Ounces': weight_ounces,
-              'Percent': percent
-          })
-      # initialize fat prop dict
-      fat_props = {
-        'saturated' : 0,
-        'unsaturated' : 0
-      }
-      for fat in fats:
-        if fat in saturated_fats:
-          fat_props['saturated'] += fats[fat] 
-        else: 
-          fat_props['unsaturated'] += fats[fat] 
-
-      lye_adjusted = lye_needed - (lye_needed * (lye_discount / 100)) if lye_discount else lye_needed
-
-      water_needed = 0
-      if water_calculation == 'water_by_oil':
-          water_needed = total_oil_weight * (float(water_by_oil_input) / 100)
-      elif water_calculation == 'water_by_lye':
-          water_needed = (lye_adjusted / (float(water_by_lye_input) / 100)) - lye_adjusted
-      elif water_calculation == 'water_lye_ratio':
-          ratio_parts = water_lye_ratio_input.split(':')
-          if len(ratio_parts) == 2:
-              water_ratio = float(ratio_parts[0])
-              lye_ratio = float(ratio_parts[1])
-              water_needed = lye_adjusted * (water_ratio / lye_ratio)
-
+      # Calculate lye requirements
+      lye_adjusted, lye_adjusted_naoh, lye_adjusted_koh, total_oil_weight = calculate_lye_requirements(
+          data, lye_type, lye_discount
+      )
+      
+      # Calculate water requirements
+      water_needed = calculate_water_requirements(
+          water_calculation, total_oil_weight, lye_adjusted,
+          water_by_oil_input, water_by_lye_input, water_lye_ratio_input
+      )
+      
+      # Calculate soap properties and fats
+      properties, fats, fat_props, recipe_details = calculate_soap_properties(
+          data, oil_prop_df, oil_fat_df
+      )
+      
       # Convert lye and water weights
       lye_weight_grams = lye_adjusted
       lye_weight_ounces = lye_weight_grams / 28.3495
@@ -1021,218 +916,31 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
 
       total_weight = total_oil_weight + water_weight_grams + lye_weight_grams
 
-      # Additives details including directions, with dynamically formatted labels
-      # Note: You can set the value of the 'value' field in grams for each additive accordingly
-      additives_details = {
-          f'Lather: Sorbitol ({sorbitol}% TOW)': {'value': sorbitol, 'type': 'TOW', 'directions': 'Add to the lye solution, at trace, after the cook, or mixed with colorants.'},
-          f'Lather: Citric Acid ({citric_acid}% TOW)': {'value': citric_acid, 'type': 'TOW', 'directions': 'Dissolve in the lye solution.'},
-          f'Humectants: Sodium Chloride ({sodium_chloride}% TOW)': {'value': sodium_chloride, 'type': 'TOW', 'directions': 'Dissolve in the lye solution or add to oils.'},
-          f'Trace Accelerants: Finished Soap ({finished_soap}% TOW)': {'value': finished_soap, 'type': 'TOW', 'directions': 'Melt with oils.'},
-          f'Trace Accelerants: Eugenol ({eugenol} drops)': {'value': eugenol, 'type': 'drops', 'directions': 'Add a few drops to heated oils.'},
-          f'Humectants: Sodium Lactate ({sodium_lactate}% TOW)': {'value': sodium_lactate, 'type': 'TOW', 'directions': 'Add 30-60 seconds after mixing oils and lye solution, after a very thick trace, and before the expansion of the recipe.'},
-          f'Lather: Cetyl Alcohol ({cetyl_alcohol}% TOW)': {'value': cetyl_alcohol, 'type': 'TOW', 'directions': 'Melted and added after trace.'},
-          f'Lather: Honey ({honey}% TOW)': {'value': honey, 'type': 'TOW', 'directions': 'Add after the cook.'},
-          f'Fluid Enhancer: Yogurt ({yogurt}% TOW)': {'value': yogurt, 'type': 'TOW', 'directions': 'Add after the cook.'},
-      }
-      for row in pcsf_oil_data:
-          oil = row['PCSF Oil']
-          tow = row['%TOW']
-          additives_details[f'PCSF:{oil} ({tow} %TOW)'] = {'value': int(tow), 'type': 'TOW', 'directions': 'Add after the cook.'}
-
-      
-      # Conversion factor
-      drops_to_grams = 1 / 30
-      
-      # Filter out additives with None or zero values
-      filtered_additives = {k: v for k, v in additives_details.items() if v['value'] is not None and v['value'] > 0}
-      
-      # Convert to DataFrame
-      recipe_additives_data = []
-      for k, v in filtered_additives.items():
-          if v['type'] == 'TOW':
-              grams = round((v['value']/100) * total_oil_weight,2) 
-          elif v['type'] == 'drops':
-              grams = v['value'] * drops_to_grams
-          else:
-              grams = v['value']
-          
-          ounces = grams / 28.3495
-          recipe_additives_data.append({
-              'Additive': k,
-              'grams': f"{grams:.2f}g",
-              'ounces': f"{ounces:.2f}oz",
-              'directions': v['directions']
-          })
-      
-      recipe_additives_df = pd.DataFrame(recipe_additives_data)
-      
-      # Generate the Dash DataTable
-      recipe_additives_table = dash_table.DataTable(
-          id='recipe-additives-table',
-          columns=[
-              {'name': 'Additive', 'id': 'Additive'},
-              {'name': 'Weight (g)', 'id': 'grams'},
-              {'name': 'Weight (oz)', 'id': 'ounces'},
-              {'name': 'Directions', 'id': 'directions'}
-          ],
-          data=recipe_additives_df.to_dict('records'),
-          style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-          style_cell={'textAlign': 'center', 'padding': '8px'},
-          style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
-          style_cell_conditional=[
-              {'if': {'column_id': 'grams'}, 'textAlign': 'center', 'width': '10%'},
-              {'if': {'column_id': 'ounces'}, 'textAlign': 'center', 'width': '10%'},
-              {'if': {'column_id': 'directions'}, 'textAlign': 'left', 'width': '50%'}
-          ]
+      # Create additives table
+      recipe_additives_table = create_additives_details(
+          additives_data, pcsf_oil_data, total_oil_weight
       )
       
 
-      # prepare datatable for overview
-      # Data for the overview table
-      overview_data = {
-          "Total Oil Weight": f"{total_oil_weight}g",
-          "Water as percent of oil weight": f"{round((water_weight_grams / total_oil_weight) * 100)}%",
-          "Lye Type": lye_type,
-          "Lye Discount": f"{round(lye_discount)}%",
-          "Lye Concentration": f"{round((lye_adjusted / (water_weight_grams + lye_adjusted)) * 100,1)}%",
-          "Water : Lye Ratio": f"{water_weight_grams / lye_adjusted:.1f}:1",
-          "Sat : Unsat Ratio": f"{round(fat_props['saturated']/(fat_props['saturated']+fat_props['unsaturated'])*100)}:{round(fat_props['unsaturated']/(fat_props['saturated']+fat_props['unsaturated'])*100)}",
-           "" : ""
-      }
-      
-      # Transform the data into a list of dictionaries
-      transposed_data = [{"Prop": key, "Value": value} for key, value in overview_data.items()]
-     
-      
-      # Columns for the transposed table
-      transposed_columns = [
-          {"name": "Prop", "id": "Prop"},
-          {"name": "Value", "id": "Value"}
-      ]
-      
-      # Create the DataTable for the transposed data
-      overview_dt = dash_table.DataTable(
-          id='overview-table',
-          columns=transposed_columns,
-          data=transposed_data,
-          style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
-          style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-          style_cell={'textAlign': 'center', 'padding': '5px', 'text-size':'12px'},
-      ) 
-
-      # Prepare DataTable for Oils columns and data
-      columns = [
-          {"name": "Oil", "id": "Oil"},
-          {"name": "Grams", "id": "Grams"},
-          {"name": "Ounces", "id": "Ounces"},
-          {"name": "Percent", "id": "Percent"}
-      ]
-
-      data_table = dash_table.DataTable(
-          columns=columns,
-          data=[{
-              'Oil': item['Oil'],
-              'Grams': f"{item['Grams']:.2f}",
-              'Ounces': f"{item['Ounces']:.2f}",
-              'Percent': f"{item['Percent']:.2f}"
-          } for item in recipe_details],
-          style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
-          style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-          style_cell={'textAlign': 'center', 'padding': '5px','text-size':'12px'},
+      # Create overview table
+      overview_dt = create_overview_table(
+          total_oil_weight, water_weight_grams, lye_type, lye_discount, 
+          lye_adjusted, fat_props
       )
 
-      # Generate a summara table
-      # Create the summary data
-      if lye_type == 'KOH_90':
-        lye_type = 'KOH 90% purity'
-      summary_data = {
-          "Summary": [
-              "Water Needed",
-              f"Lye Needed ({lye_type})",
-              "Total Oil Weight",
-              "Total Weight"
-          ],
-          "Weight (g)": [
-              f"{water_weight_grams:.2f}",
-              f"{lye_weight_grams:.2f}",
-              f"{total_oil_weight:.2f}",
-              f"{total_weight:.2f}"
-          ],
-          "Weight (oz)": [
-              f"{water_weight_ounces:.2f}",
-              f"{lye_weight_ounces:.2f}",
-              f"{total_oil_weight / 28.3495:.2f}",
-              f"{total_weight / 28.3495:.2f}"
-          ]
-      }
-      if lye_type == 'dual_lye':
-        lye_adjusted_naoh = lye_needed_naoh - (lye_needed_naoh * (lye_discount / 100)) if lye_discount else lye_needed_naoh
-        lye_adjusted_koh = lye_needed_koh - (lye_needed_koh * (lye_discount / 100)) if lye_discount else lye_needed_koh
-        summary_data = {
-          "Summary": [
-              "Total Oil Weight",
-              "Water Needed",
-              "Lye Needed (NaOH)",
-              "Lye Needed (KOH)",
-              "Total Weight"
-          ],
-          "Weight (g)": [
-              f"{total_oil_weight:.2f}",
-              f"{water_weight_grams:.2f}",
-              f"{lye_adjusted_naoh:.2f}",
-              f"{lye_adjusted_koh:.2f}",
-              f"{total_weight:.2f}"
-          ],
-          "Weight (oz)": [
-              f"{total_oil_weight / 28.3495:.2f}",
-              f"{water_weight_ounces:.2f}",
-              f"{lye_adjusted_naoh / 28.3495:.2f}",
-              f"{lye_adjusted_koh / 28.3495:.2f}",
-              f"{total_weight / 28.3495:.2f}"
-          ]
-        }
-  
-      # Convert to DataFrame
-      summary_df = pd.DataFrame(summary_data)
-      
-      summary_table = dash_table.DataTable(
-          id='summary-table',
-          columns=[{'name': col, 'id': col} for col in summary_df.columns],
-          data=summary_df.to_dict('records'),
-          style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-          style_cell={'textAlign': 'center', 'padding': '5px','text-size':'12px'},
-          style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
+      # Create oils table
+      data_table = create_oils_table(recipe_details)
+
+      # Create summary table
+      summary_table = create_summary_table(
+          total_oil_weight, water_weight_grams, water_weight_ounces,
+          lye_weight_grams, lye_weight_ounces, total_weight, lye_type,
+          lye_adjusted_naoh, lye_adjusted_koh
       )
       
-      # Generate properties table
-      # Convert the properties and ranges into a DataFrame
-      prop_data_df = pd.DataFrame({
-        "Property": properties.keys(),
-        "Range": ranges.values(),
-        "Value": properties.values()
-      })
-
-      fats_df = pd.DataFrame(list(fats.items()), columns=['Fat Type', 'Amount'])
-      prop_data_dict = prop_data_df.to_dict('records')
-      properties_table = dash_table.DataTable(
-        id='properties-table',
-        columns=[{'name': col, 'id': col} for col in prop_data_df.columns],
-        data=prop_data_dict,
-        style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-        style_cell={'textAlign': 'left', 'padding': '5px','text-size':'12px'},
-        style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
-      )
-
-      # Generate the Dash DataTable
-
-      fats_table = dash_table.DataTable(
-        id='fats-table',
-        columns=[{'name': col, 'id': col} for col in fats_df.columns],
-        data=fats_df.to_dict('records'),
-        style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse','overflowX': 'auto'},
-        style_cell={'textAlign': 'left', 'padding': '5px','text-size':'12px'},
-        style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
-      )
+      # Create properties and fats tables
+      properties_table = create_properties_table(properties, ranges)
+      fats_table = create_fats_table(fats)
 
       return  html.Div([
           dbc.Button('Print Recipe', id='print-button', n_clicks=0, className="no-print", style={'background-color':'primary', 'color':'white','padding-right': '38px','padding-left': '38px'}),
