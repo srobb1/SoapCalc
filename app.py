@@ -6,11 +6,19 @@ import json
 import base64
 import io
 import dash_bootstrap_components as dbc
+from pathlib import Path
 
+# Configuration - Data file paths
+BASE_DIR = Path(__file__).parent
+DATA_DIR = BASE_DIR / 'data'
+OIL_PROPERTIES_FILE = DATA_DIR / 'Oil_Properties.tsv'
+OIL_FATS_FILE = DATA_DIR / 'Oil_fats.tsv'
 
 # Load data
-oil_prop_df = pd.read_csv('data/Oil_Properties.tsv', header=0, index_col=0, sep="\t")
-oil_fat_df = pd.read_csv('data/Oil_fats.tsv', header=0, index_col=0, sep="\t")
+oil_prop_df = pd.read_csv(OIL_PROPERTIES_FILE, header=0, index_col=0, sep="\t")
+oil_fat_df = pd.read_csv(OIL_FATS_FILE, header=0, index_col=0, sep="\t")
+
+# Constants
 saturated_fats = ("Lauric","Myristic","Palmitic","Stearic")
 unsaturated_fats = ("Oleic","Linoleic","Linolenic","Ricinoleic")
 
