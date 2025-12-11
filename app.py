@@ -371,6 +371,7 @@ app.layout = html.Div([
                 style={'padding-left': '10px'},  # Add left padding here
             ),
             html.Div(id='selected-oils-updated'),
+            html.Div(id='oils-totals', style={'padding-left': '10px', 'margin-top': '10px', 'font-weight': 'bold'}),
         ], width=4)
     ]),
     dbc.Row(
@@ -1153,6 +1154,25 @@ def export_recipe(n_clicks, selected_oils, recipe_name, recipe_notes, unit, lye_
         return dcc.send_bytes(json_data.encode(), filename)
     
     return no_update
+
+
+# Callback to display oils totals
+@app.callback(
+    Output('oils-totals', 'children'),
+    Input('selected-oils-data', 'data')
+)
+def display_oils_totals(data):
+    """Calculate and display totals for selected oils"""
+    if not data:
+        return html.Div()
+    
+    total_grams = sum(float(row.get('Grams', 0)) for row in data)
+    total_ounces = sum(float(row.get('Ounces', 0)) for row in data)
+    total_percent = sum(float(row.get('Percent', 0)) for row in data)
+    
+    return html.Div(
+        f"Total Grams: {total_grams:.2f} | Total Ounces: {total_ounces:.2f} | Total Percent: {total_percent:.1f}%"
+    )
 
 
 # Clientside callback for print button
