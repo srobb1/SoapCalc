@@ -107,7 +107,9 @@ other_ingredient_initial_rows = [
 ]
 
 # Initialize the app
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'])
+app = Dash(__name__, 
+           external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'],
+           suppress_callback_exceptions=True)
 
 # App layout
 app.layout = html.Div([
@@ -978,6 +980,7 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
 
       return  html.Div([
           dbc.Button('Print Recipe', id='print-button', n_clicks=0, className="no-print", style={'background-color':'primary', 'color':'white','padding-right': '38px','padding-left': '38px'}),
+          html.Div(id='print-trigger', style={'display': 'none'}),
           html.Br(className="no-print"),
           html.Br(className="no-print"),
           html.Div(id="your-recipe", className="printable-content", children=[
@@ -1149,5 +1152,23 @@ def export_recipe(n_clicks, selected_oils, recipe_name, recipe_notes, unit, lye_
         return dcc.send_bytes(json_data.encode(), filename)
     
     return no_update
+
+
+# Clientside callback for print button
+app.clientside_callback(
+    """
+    function(n_clicks) {
+        if (n_clicks && n_clicks > 0) {
+            window.print();
+        }
+        return '';
+    }
+    """,
+    Output('print-trigger', 'children'),
+    Input('print-button', 'n_clicks'),
+    prevent_initial_call=True
+)
+
+
 if __name__ == '__main__':
   app.run(debug=True)
