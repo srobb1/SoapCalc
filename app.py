@@ -524,6 +524,13 @@ app.layout = html.Div([
     prevent_initial_call=True
 )
 def update_other_ingredients_table(n_clicks, contents, filename, data):
+    """
+    Update other ingredients table when adding rows or uploading recipe
+    
+    Handles two actions:
+    - Add button: Appends empty row to table
+    - Upload: Loads ingredients from JSON file
+    """
     ctx = callback_context
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -554,6 +561,7 @@ def update_other_ingredients_table(n_clicks, contents, filename, data):
   State('stored-pcsf-selected-oils', 'data')
 )
 def update_pcsf_dropdown(selected_oils, stored_selected_oils):
+  """Update PCSF (Post Cook Superfat) dropdown options and maintain selection state"""
   if selected_oils is None:
       selected_oils = []
   if stored_selected_oils is None:
@@ -578,6 +586,12 @@ def update_pcsf_dropdown(selected_oils, stored_selected_oils):
    State('stored-pcsf-selected-oils', 'data')]
 )
 def update_pcsf_table(selected_oils,timestamp, contents, filename, data, stored_selected_oils):
+      """
+      Update PCSF oils data table
+      
+      Handles dropdown selection changes and recipe uploads.
+      Preserves existing %TOW values when oils are reselected.
+      """
       ctx = callback_context
       trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -621,6 +635,7 @@ def update_pcsf_table(selected_oils,timestamp, contents, filename, data, stored_
   Input('method_calculation', 'value')
 )
 def show_hide_total_weight_input(method):
+  """Show/hide total weight input field based on calculation method"""
   if method == 'By_Percent':
       return {'display': 'block'}
   else:
@@ -634,12 +649,13 @@ def show_hide_total_weight_input(method):
   State('stored-selected-oils', 'data')
 )
 def update_dropdown(selected_oils, stored_selected_oils):
+  """Update recipe oils dropdown options and maintain selection state"""
   if selected_oils is None:
       selected_oils = []
   if stored_selected_oils is None:
       stored_selected_oils = []
 
-  all_options = [{'label': oil, 'value': oil} for oil in oil_prop_df.index.tolist()] #df['Oil']]
+  all_options = [{'label': oil, 'value': oil} for oil in oil_prop_df.index.tolist()]
   updated_selected_oils = list(set(stored_selected_oils + selected_oils))
 
   return all_options, updated_selected_oils
@@ -675,6 +691,18 @@ def update_dropdown(selected_oils, stored_selected_oils):
      State('stored-selected-oils', 'data')]
 )
 def update_table(selected_oils, lye_type, unit, method, timestamp, contents, filename, data, total_weight, stored_selected_oils):
+    """
+    Main callback for selected oils table
+    
+    Handles:
+    - Oil selection from dropdown
+    - Unit changes (Grams/Ounces)
+    - Method changes (By Weight/By Percent)
+    - Data edits with automatic recalculation
+    - Recipe JSON uploads
+    
+    Returns updated table data, columns, styling, and all recipe parameters
+    """
     ctx = callback_context
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
     editable_cols = []
@@ -998,6 +1026,7 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
    State('additives-table', 'data')
 )
 def update_additives_table(contents, filename, data):
+      """Load additives table data from uploaded JSON recipe"""
       ctx = callback_context
       trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -1041,6 +1070,12 @@ from slugify import slugify
     prevent_initial_call=True,
 )
 def export_recipe(n_clicks, selected_oils, recipe_name, recipe_notes, unit, lye_type, lye_discount, method_calculation, total_weight, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input,pcsf_data,additives_data,other_ingredients_data):
+    """
+    Export recipe to JSON file
+    
+    Converts all string values from Dash tables to proper numeric types
+    before saving to ensure JSON can be reloaded correctly.
+    """
     if n_clicks > 0:
         # Convert numeric string values to numbers for selected_oils
         cleaned_selected_oils = []
