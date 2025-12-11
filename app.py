@@ -114,31 +114,35 @@ app = Dash(__name__,
 
 # App layout
 app.layout = html.Div([html.Div([html.Div([
-    dbc.Row(
+    dbc.Row([
         dbc.Col(
-            html.H1("Sofia's Soap Calculator", style={'textAlign': 'left', 'color': '#000', 'paddingLeft': '10px', 'marginBottom': '20px'}),
-            width=12
-        )
-    ),
+            html.Div([
+                html.Span('🧼', style={'fontSize': '32px', 'marginRight': '15px'}),
+                html.H1("Sofia's Soap Calculator", style={'textAlign': 'left', 'color': '#1f77b4', 'marginBottom': '0px', 'display': 'inline-block', 'fontWeight': '600', 'letterSpacing': '0.5px'})
+            ], style={'display': 'flex', 'alignItems': 'center', 'paddingLeft': '10px', 'paddingTop': '15px', 'paddingBottom': '15px'}),
+            width=5
+        ),
+        dbc.Col([
+            dcc.Upload(
+                id='upload-recipe-json',
+                children=dbc.Button('Upload Recipe (JSON)', color='primary', outline=False, size='sm'),
+                multiple=False
+            ),
+            html.Div(id='upload-recipe-json-output'),
+        ], width=2, style={'textAlign': 'right', 'paddingRight': '10px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'flex-end'})
+    ]),
     dbc.Row([
         dbc.Col([
                 dbc.Accordion([
                     dbc.AccordionItem(
                         html.Div([
+                                            dbc.Row(
+                                dbc.Col([
+                                ])
+                            ),
                             dbc.Row(
-                                 dbc.Col([
-                                     dcc.Upload(
-                                         id='upload-recipe-json',
-                                         children=dbc.Button('Upload Recipe (JSON)', color='primary', outline=False),
-                                         multiple=False,
-                                         style={'marginBottom': '15px'}
-                                     ),
-                                     html.Div(id='upload-recipe-json-output'),
-                                 ])
-                             ),
-                             dbc.Row(
-                                 dbc.Col([
-                                     html.Label(html.Strong('Recipe Name:'), style={'marginBottom': '8px'}),
+                                dbc.Col([
+                                    #html.Label(html.Strong('Recipe Name:'), style={'marginBottom': '8px'}),
                                      dcc.Input(
                                          id='recipe-name',
                                          placeholder='Enter recipe name',
@@ -153,7 +157,7 @@ app.layout = html.Div([html.Div([html.Div([
                              ),
                              dbc.Row(
                                  dbc.Col([
-                                     html.Label(html.Strong('Recipe Notes:'), style={'marginBottom': '8px'}),
+                                     #html.Label(html.Strong('Recipe Notes:'), style={'marginBottom': '8px'}),
                                      dcc.Textarea(
                                          id='recipe-notes',
                                          placeholder='Enter recipe notes',
@@ -526,15 +530,22 @@ app.layout = html.Div([html.Div([html.Div([
             
         ],width=4)
     ]),
-    dbc.Row(
+    dbc.Row([
         dbc.Col(
-            html.Div(
-                dbc.Button('Generate Recipe', id='get-recipe', n_clicks=0, style={'backgroundColor':'orange', 'color':'black'}),
-                #style={'paddingLeft': '10px'}
-            ),
-            width=4
+            dbc.Button('Generate Recipe', id='get-recipe', n_clicks=0, size='lg', style={'backgroundColor':'orange', 'color':'black'}),
+            width='auto'
+        ),
+        dbc.Col(
+            dbc.Button('Export Recipe (JSON)', id='export-recipe', n_clicks=0, color='primary', size='lg'),
+            width='auto'
+        ),
+        dbc.Col(
+            dbc.Button('Print Recipe', id='print-button', n_clicks=0, color='success', size='lg'),
+            width='auto',
+            id='print-button-container',
+            style={'display': 'none'}
         )
-    ),
+    ]),
 
     ],className='no-print'),
     html.Div([
@@ -546,18 +557,10 @@ app.layout = html.Div([html.Div([html.Div([
         ),
     ],className='print-content',style={'width': '100%'}),
     html.Div([
-        dbc.Row(
-            dbc.Col([
-                html.Br(),
-                html.Hr(),
-                html.Br(),
-                dbc.Button('Export Recipe (JSON)', id='export-recipe', n_clicks=0, color='primary'),
-                dcc.Download(id='download-recipe'),  # Add this component
-                html.Div(id='export-recipe-json-output')  # Output for export feedback
-            ], width=4)
-         )],className='no-print',style={'width': '100%'}
-    ),
-    ], style={'paddingLeft': '20px','width': '100%'}
+        dcc.Download(id='download-recipe'),  # Add this component
+        html.Div(id='export-recipe-json-output')  # Output for export feedback
+    ],className='no-print',style={'width': '100%'}),
+], style={'paddingLeft': '20px','width': '100%'}
 )
 
 @app.callback(
@@ -878,9 +881,9 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
                     total_percent += percent
                     if unit == 'Grams':
                         row['Grams'] = (percent / 100) * total_weight
-                        row['Ounces'] = row['Grams'] / 28.3495
+                        row['Ounces'] = round(row['Grams'] / 28.3495, 2)
                     else:
-                        row['Ounces'] = (percent / 100) * total_weight
+                        row['Ounces'] = round((percent / 100) * total_weight, 2)
                         row['Grams'] = row['Ounces'] * 28.3495
             if total_percent != 100:
                 if total_percent < 100:
@@ -890,6 +893,11 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
                     difference = total_percent - 100
                     error_message.append(f'Please make sure your percentages add up to 100%. {total_percent}% is more than 100 by {difference}')
 
+        # Format Ounces to 2 decimals
+        for row in data:
+            if 'Ounces' in row:
+                row['Ounces'] = round(float(row.get('Ounces', 0)), 2)
+        
         error_list = html.Ul([html.Li(x) for x in error_message])
         return (data,
                 [{'name': col, 'id': col, 'editable': (col in editable_cols)} for col in dt_oil_columns],
@@ -1022,7 +1030,6 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
       fats_table = create_fats_table(fats)
 
       return  html.Div([
-          dbc.Button('Print Recipe', id='print-button', n_clicks=0, className="no-print", style={'backgroundColor':'primary', 'color':'white','padding-right': '38px','paddingLeft': '38px'}),
           html.Div(id='print-trigger', style={'display': 'none'}),
           html.Br(className="no-print"),
           html.Br(className="no-print"),
@@ -1211,9 +1218,48 @@ def display_oils_totals(data):
     total_ounces = sum(float(row.get('Ounces', 0)) for row in data)
     total_percent = sum(float(row.get('Percent', 0)) for row in data)
     
-    return html.Div(
-        f"Total Grams: {total_grams:.2f} | Total Ounces: {total_ounces:.2f} | Total Percent: {total_percent:.1f}%"
+    # Color total percent text orange if over 100%
+    percent_color = 'orange' if total_percent > 100 else 'black'
+    
+    return html.Div([
+        f"Total Grams: {total_grams:.2f} | Total Ounces: {total_ounces:.2f} | ",
+        html.Span(
+            f"Total Percent: {total_percent:.1f}%",
+            style={'color': percent_color, 'fontWeight': 'bold'}
+        )
+    ])
+
+
+# Callback to show/hide export button based on user edits
+@app.callback(
+    Output('export-recipe-container', 'style'),
+    Input('recipe-name', 'value'),
+    Input('recipe-notes', 'value'),
+    Input('selected-oils-data', 'data'),
+    Input('lye_discount', 'value'),
+    Input('unit', 'value'),
+    Input('lye_type', 'value'),
+    Input('method_calculation', 'value'),
+    Input('total_weight', 'value'),
+    Input('water_calculation', 'value'),
+    Input('water_by_oil_input', 'value'),
+    Input('water_by_lye_input', 'value'),
+    Input('water_lye_ratio_input', 'value'),
+    Input('pcsf-selected-oils-data', 'data'),
+    Input('additives-table', 'data'),
+    Input('other-ingredients-table', 'data'),
+)
+def show_export_button(*args):
+    """Show export button if any edit has been made"""
+    # Check if any input has a value (indicating user has made edits)
+    has_edits = any(
+        arg is not None and arg != '' and (not isinstance(arg, list) or len(arg) > 0)
+        for arg in args
     )
+    
+    if has_edits:
+        return {'display': 'block'}
+    return {'display': 'none'}
 
 
 # Clientside callback for print button
@@ -1230,6 +1276,17 @@ app.clientside_callback(
     Input('print-button', 'n_clicks'),
     prevent_initial_call=True
 )
+
+# Callback to show/hide print button based on results
+@app.callback(
+    Output('print-button-container', 'style'),
+    Input('results', 'children')
+)
+def show_print_button(results):
+    """Show print button only when results exist"""
+    if results and results != html.Div():
+        return {'display': 'block'}
+    return {'display': 'none'}
 
 
 if __name__ == '__main__':
