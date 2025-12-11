@@ -604,10 +604,6 @@ def update_pcsf_dropdown(selected_oils, stored_selected_oils):
    State('stored-pcsf-selected-oils', 'data')]
 )
 def update_pcsf_table(selected_oils,timestamp, contents, filename, data, stored_selected_oils):
-      print('so',selected_oils)
-      print('d',data)
-      print('sso',stored_selected_oils)
-
       ctx = callback_context
       trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -941,13 +937,6 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
           style_cell={'textAlign': 'center', 'padding': '8px',"white-space": "pre-wrap"},
           style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
       )
- 
-#   other_ingredient_recipe_table = dash_table.DataTable(
-#        columns=other_ingredient_columns,
-#        data=other_ingredients_filtered_data,
-#        editable=True,
-#        row_deletable=True
-#    )
 
    if n_clicks > 0 and data:
       lye_needed = 0
@@ -1094,7 +1083,6 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
       drops_to_grams = 1 / 30
       
       # Filter out additives with None or zero values
-      print(additives_details.items())
       filtered_additives = {k: v for k, v in additives_details.items() if v['value'] is not None and v['value'] > 0}
       
       # Convert to DataFrame
@@ -1166,7 +1154,6 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
           id='overview-table',
           columns=transposed_columns,
           data=transposed_data,
-#          style_cell={'textAlign': 'left', 'padding': '5px'},
           style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
           style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
           style_cell={'textAlign': 'center', 'padding': '5px', 'text-size':'12px'},
@@ -1283,17 +1270,10 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
         data=fats_df.to_dict('records'),
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse','overflowX': 'auto'},
         style_cell={'textAlign': 'left', 'padding': '5px','text-size':'12px'},
-#        css=[{
-#            'selector': 'tr:first-child',
-#            'rule':'''
-#                    display: None;
-#            '''
-#        }],
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
       )
 
       return  html.Div([
-#          html.Button('Print Recipe', id='print-button', n_clicks=0, className="no-print"),
           dbc.Button('Print Recipe', id='print-button', n_clicks=0, className="no-print", style={'background-color':'primary', 'color':'white','padding-right': '38px','padding-left': '38px'}),
           html.Br(className="no-print"),
           html.Br(className="no-print"),
@@ -1349,8 +1329,6 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
    State('additives-table', 'data')
 )
 def update_additives_table(contents, filename, data):
-      print('data',data)
-
       ctx = callback_context
       trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
