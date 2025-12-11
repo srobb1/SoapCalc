@@ -1,0 +1,15 @@
+var dagfuncs = window.dashAgGridFunctions = window.dashAgGridFunctions || {};
+
+function isHeaderRow(params) {
+    return params.data.section === 'big-title';
+}
+
+dagfuncs.additiveColSpan = function (params) {
+    if (isHeaderRow(params)) {
+        return 6;
+    } 
+    else {
+        return 1;
+    }
+}
+

@@ -1,0 +1,103 @@
+button, input, optgroup, select, textarea {
+    margin: 4px;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    display: inline-block;
+    /* padding-left: 2px; */
+}
+
+h3 {
+    padding-left: 10px;
+    color: #119dff;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.header-cell {
+    background-color: #119dff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+}
+
+
+input[type="number"] {
+    width: 100%;
+}
+
+.input-group {
+    padding: 10px;
+}
+
+.input-large {
+    width: 100%;
+}
+
+.input-small {
+    width: 10px;
+    margin-right: 10px;
+}
+
+.dropdown {
+    width: 100%;
+}
+
+.btn-primary {
+ //   background-color: #007bff;
+  //  color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.results {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+.discount-group {
+    margin-top: 10px;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.error-message, #error-message {
+    color: red;
+    font-weight: bold;
+}
+
+.radio-items {
+    margin-bottom: 10px;
+}
+
+/* Info Icon */
+.info-icon {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+td {
+  white-space: pre-wrap !important;
+}
+
+table {
+  font-family : -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+  text-align: left !important;
+}
+
+
