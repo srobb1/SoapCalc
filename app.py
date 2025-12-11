@@ -113,382 +113,413 @@ app = Dash(__name__,
            title="Sofia's Soap Calculator")
 
 # App layout
-app.layout = html.Div([
-    html.Div([
+app.layout = html.Div([html.Div([html.Div([
     dbc.Row(
         dbc.Col(
-            html.H1("Sofia's Soap Calculator", style={'textAlign': 'left', 'color': '#000', 'paddingLeft': '10px'}),
-            width=4
+            html.H1("Sofia's Soap Calculator", style={'textAlign': 'left', 'color': '#000', 'paddingLeft': '10px', 'marginBottom': '20px'}),
+            width=12
         )
-    ),
-    dbc.Row(
-        dbc.Col([
-            html.Br(),
-            html.Hr(),
-            html.H3("Your Recipe:"),
-            dcc.Upload(id='upload-recipe-json',children=html.Button('Upload Recipe (JSON)', style={'border': 'none', 'borderRadius': '0.25rem', 'padding': '0.5rem 1rem', 'backgroundColor': '#007bff', 'color': 'white', 'fontSize': '1rem', 'cursor': 'pointer'}),multiple=False,style={'display': 'inline-block'}),
-            html.Div(id='upload-recipe-json-output'),  # Output for upload feedback
-            html.Hr(),
-        ], width=12)
-    ),
-    dbc.Row(
-        dbc.Col(
-            html.Div([
-                dcc.Input(id='recipe-name', placeholder='Enter recipe name', type='text', value='', style={'width': '30%', 'height': '30px'}, required=True),
-            ])
-        )
-    ),
-    dbc.Row(
-        dbc.Col(
-            html.Div([
-                dcc.Textarea(id='recipe-notes', placeholder='Enter recipe notes', value='', style={'width': '30%', 'height': '80px', 'resize': 'vertical', 'padding': '4px'}),
-            ])
-        )
-    ),
-    dbc.Row(
-        dbc.Col([
-            html.Br(),
-            html.Hr(),
-            html.H3("Select Your Recipe Parameters:"),
-            html.Hr(),
-        ], width=4)
     ),
     dbc.Row([
         dbc.Col([
-            html.Div([
-                html.Label([
-                    html.Span(html.Strong('Units:'), id='Units-tooltip'),
-                    dcc.RadioItems(
-                        options=[
-                            {'label': 'Grams', 'value': 'Grams'},
-                            {'label': 'Ounces', 'value': 'Ounces'}
-                        ],
-                        value='Grams',
-                        id='unit',
-                        labelStyle={'display': 'flex'},
-                        style={'paddingLeft': '10px'}
-                    )
-                ]),
-                dbc.Tooltip(
-                    "Enter the units you want to use to input weights into the Selected Oil table.",
-                    target="Units-tooltip"
-                ),
-            ]),
-            html.Div([
-                html.Label([
-                    html.Strong('Lye:'),
-                    dcc.RadioItems(
-                        options=[
-                            {'label': html.Span('NaOH', id='NaOH-tooltip'), 'value': 'NaOH'},
-                            {'label': html.Span('KOH', id='KOH-tooltip'), 'value': 'KOH'},
-                            {'label': html.Span('90% KOH', id='KOH_90-tooltip'), 'value': 'KOH_90'},
-                            {'label': html.Span('Dual Lye', id='dual_lye-tooltip'), 'value': 'dual_lye'}
-                        ],
-                        value='NaOH',
-                        id='lye_type',
-                        labelStyle={'display': 'flex'},
-                        style={'paddingLeft': '10px'}
-                    )
-                ]),
-                dbc.Tooltip(
-                    "Sodium Hydroxide is used in cold and hot process soap making.",
-                    target="NaOH-tooltip"
-                ),
-                dbc.Tooltip(
-                    "Potassium Hydroxide is used to make liquid soap.",
-                    target="KOH-tooltip"
-                ),
-                dbc.Tooltip(
-                    "90% pure Potassium Hydroxide, is used to make liquid soap.",
-                    target="KOH_90-tooltip"
-                ),
-                dbc.Tooltip(
-                    "95% NaOH and 5% KO is used to increase the lather in bar soaps.",
-                    target="dual_lye-tooltip"
-                ),
-            ])
-        ], width=1),
-        dbc.Col([
-            html.Div([
-                html.Label(html.Strong('Lye Discount:'), id='Discount-tooltip'),
-                html.Br(),
-                dcc.Input(id='lye_discount', type='number', value='5', style={'width': '45px', 'height': '20px', 'marginLeft': '25px'}),
-                html.Label('%'),
-                dbc.Tooltip(
-                    "A typical value is between 3 and 15. This is the percentage of lye you want reduced to allow for this percentage of un-saponified oils to remain",
-                    target="Discount-tooltip"
-                ),
-            ]),
-            html.Br(),
-            html.Div([
-                html.Label([
-                    html.Span(html.Strong('Oils Entered by:'), id='Method-tooltip'),
-                    dcc.RadioItems(
-                        options=[
-                            {'label': 'Weight', 'value': 'By_Weight'},
-                            {'label': 'Percentage', 'value': 'By_Percent'}
-                        ],
-                        value='By_Weight',
-                        id='method_calculation'
-                    ),
-                    dcc.Input(
-                        id='total_weight',
-                        type='number',
-                        placeholder='Enter total weight (g or oz)',
-                        style={'display': 'none'}
-                    ),
-                ]),
-                dbc.Tooltip(
-                    "Do you want to enter exact Oil weights or do you want to use a percentage of a total oil weight?",
-                    target="Method-tooltip"
-                ),
-            ])
-        ], width=1),
-        dbc.Col(
-            html.Div([
-                html.Label(html.Strong('Calculate Water As:')),
-                html.Div(
-                    [
-                        dcc.RadioItems(
-                            id='water_calculation',
-                            options=[
-                                {
-                                    'label': html.Div(
-                                        [
-                                            html.Label(
-                                                [
-                                                    '% of Oil Weight:',
-                                                    dcc.Input(
-                                                        id='water_by_oil_input',
-                                                        type='number',
-                                                        value='38',
-                                                        style={'width': '45px', 'height': '20px', 'marginLeft': '5px'}
-                                                    )
-                                                ],
-                                                style={'display': 'flex', 'alignItems': 'center'}
-                                            ),
-                                            html.Label('%'),
-                                        ],
-                                        style={'display': 'inline-flex', 'alignItems': 'center'}
-                                    ),
-                                    'value': 'water_by_oil'
-                                },
-                                {
-                                    'label': html.Div(
-                                        [
-                                            html.Label(
-                                                [
-                                                    '% of Lye Weight:',
-                                                    dcc.Input(
-                                                        id='water_by_lye_input',
-                                                        type='number',
-                                                        value='33',
-                                                        style={'width': '45px', 'height': '20px', 'marginLeft': '5px'}
-                                                    )
-                                                ],
-                                                style={'display': 'flex', 'alignItems': 'center'}
-                                            ),
-                                            html.Label('%'),
-                                        ],
-                                        style={'display': 'inline-flex', 'alignItems': 'center'}
-                                    ),
-                                    'value': 'water_by_lye'
-                                },
-                                {
-                                    'label': html.Div(
-                                        [
-                                            html.Label(
-                                                [
-                                                    'Water : Lye Ratio:',
-                                                    dcc.Input(
-                                                        id='water_lye_ratio_input',
-                                                        type='text',
-                                                        value='2:1',
-                                                        style={'width': '45px', 'height': '20px', 'marginLeft': '5px'}
-                                                    )
-                                                ],
-                                                style={'display': 'flex', 'alignItems': 'center'}
-                                            ),
-                                        ],
-                                        style={'display': 'inline-flex', 'alignItems': 'center'}
-                                    ),
-                                    'value': 'water_lye_ratio'
-                                },
-                            ],
-                            value='water_by_oil',
-                            labelStyle={'display': 'block', 'marginRight': '10px'}
-                        ),
-                    ]
-                )
-            ]), width=2
-        ),
+                dbc.Accordion([
+                    dbc.AccordionItem(
+                        html.Div([
+                            dbc.Row(
+                                 dbc.Col([
+                                     dcc.Upload(
+                                         id='upload-recipe-json',
+                                         children=dbc.Button('Upload Recipe (JSON)', color='primary', outline=False),
+                                         multiple=False,
+                                         style={'marginBottom': '15px'}
+                                     ),
+                                     html.Div(id='upload-recipe-json-output'),
+                                 ])
+                             ),
+                             dbc.Row(
+                                 dbc.Col([
+                                     html.Label(html.Strong('Recipe Name:'), style={'marginBottom': '8px'}),
+                                     dcc.Input(
+                                         id='recipe-name',
+                                         placeholder='Enter recipe name',
+                                         type='text',
+                                         value='',
+                                         style={'width': '100%', 'height': '35px', 'padding': '5px', 'border': '1px solid #ccc', 'borderRadius':
+   '0.25rem'},
+                                         required=True
+                                     ),
+                                 ], width=9),
+                                 style={'marginBottom': '15px'}
+                             ),
+                             dbc.Row(
+                                 dbc.Col([
+                                     html.Label(html.Strong('Recipe Notes:'), style={'marginBottom': '8px'}),
+                                     dcc.Textarea(
+                                         id='recipe-notes',
+                                         placeholder='Enter recipe notes',
+                                         value='',
+                                         style={
+                                             'width': '100%',
+                                             'height': '100px',
+                                             'resize': 'vertical',
+                                             'padding': '8px',
+                                             'border': '1px solid #ccc',
+                                             'borderRadius': '0.25rem',
+                                             'fontFamily': 'inherit'
+                                         }
+                                     ),
+                                 ], width=9)
+                             ),
+                         ], style={'width': '100%', 'paddingLeft': '10px'}),
+                         title=html.Strong("Recipe Information"),
+                         item_id="recipe-info-accordion"
+                     )
+                 ], active_item="recipe-info-accordion", style={'marginBottom': '20px'})
+             ], width=7),
+        ]),
     ]),
-    dbc.Row(
-        dbc.Col([
-            html.Br(),
-            html.Hr(),
-            html.H3("Recipe Oils:"),
-            html.Hr(),
-        ], width=4)
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.Div([
-                    dcc.Store(id='stored-selected-oils', storage_type='local'),
-                    html.Label([
-                        html.Strong('Select your recipe oils:'),
-                        dcc.Dropdown(id='selected-oils', multi=True)
-                    ], style={"width": "100%", 'paddingLeft': '10px'}),
-                ]),
-                width=4
-            ),
-        ]
-    ),
     dbc.Row([
         dbc.Col([
             html.Br(),
-            html.Div(id='select-oils-output-container'),
-            html.Div([
-                dash_table.DataTable(
-                    id='selected-oils-data',
-                    columns=[{'name': col, 'id': col, 'editable': True} for col in dt_oil_columns],
-                    data=[],
-                    editable=True,
-                    row_deletable=True,
-                    style_header={
-                        'fontSize': '13px',
-                        'fontWeight': 'bold',
-                        'paddingLeft': '10px',
-                    },
-                    style_cell={
-                        'text-align': 'left',
-                        'paddingLeft': '10px',
-                        'fontSize': '13px',
-                    },
-                ),
-            ],
-                style={'paddingLeft': '10px'},  # Add left padding here
-            ),
-            html.Div(id='selected-oils-updated'),
-            html.Div(id='oils-totals', style={'paddingLeft': '10px', 'marginTop': '10px', 'fontWeight': 'bold'}),
-        ], width=4)
-    ]),
-    dbc.Row(
-        dbc.Col([
-            html.Br(), html.Hr(), html.Br(),
-        ], width=3, style={'paddingLeft': '25px'})
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.Div([
-                    dcc.Store(id='stored-pcsf-selected-oils', storage_type='local'),
-                    html.Label([
-                        html.Strong('Select your Post Cook Superfat Oils:'),
-                        dcc.Dropdown(id='pcsf-selected-oils', multi=True)
-                    ], style={"width": "100%", 'paddingLeft': '10px'}),
-                ]),
-                width=4
-            ),
-        ]
-    ),
+            dbc.Accordion([
+                 dbc.AccordionItem(
+                     html.Div([
+                         dbc.Row([
+                             dbc.Col([
+                                 html.Div([
+                                     html.Label([
+                                         html.Span(html.Strong('Units:'), id='Units-tooltip'),
+                                         dcc.RadioItems(
+                                             options=[
+                                                 {'label': 'Grams', 'value': 'Grams'},
+                                                 {'label': 'Ounces', 'value': 'Ounces'}
+                                             ],
+                                             value='Grams',
+                                             id='unit',
+                                             labelStyle={'display': 'flex'},
+                                             style={'paddingLeft': '10px'}
+                                         )
+                                     ]),
+                                     dbc.Tooltip(
+                                         "Enter the units you want to use to input weights into the Selected Oil table.",
+                                         target="Units-tooltip"
+                                     ),
+                                 ]),
+                                 html.Div([
+                                     html.Label([
+                                         html.Strong('Lye:'),
+                                         dcc.RadioItems(
+                                             options=[
+                                                 {'label': html.Span('NaOH', id='NaOH-tooltip'), 'value': 'NaOH'},
+                                                 {'label': html.Span('KOH', id='KOH-tooltip'), 'value': 'KOH'},
+                                                 {'label': html.Span('90% KOH', id='KOH_90-tooltip'), 'value': 'KOH_90'},
+                                                 {'label': html.Span('Dual Lye', id='dual_lye-tooltip'), 'value': 'dual_lye'}
+                                             ],
+                                             value='NaOH',
+                                             id='lye_type',
+                                             labelStyle={'display': 'flex'},
+                                             style={'paddingLeft': '10px'}
+                                         )
+                                     ]),
+                                     dbc.Tooltip(
+                                         "Sodium Hydroxide is used in cold and hot process soap making.",
+                                         target="NaOH-tooltip"
+                                     ),
+                                     dbc.Tooltip(
+                                         "Potassium Hydroxide is used to make liquid soap.",
+                                         target="KOH-tooltip"
+                                     ),
+                                     dbc.Tooltip(
+                                         "90% pure Potassium Hydroxide, is used to make liquid soap.",
+                                         target="KOH_90-tooltip"
+                                     ),
+                                     dbc.Tooltip(
+                                         "95% NaOH and 5% KO is used to increase the lather in bar soaps.",
+                                         target="dual_lye-tooltip"
+                                     ),
+                                 ])
+                             ], width=2),
+                             dbc.Col([
+                                 html.Div([
+                                     html.Label(html.Strong('Lye Discount:'), id='Discount-tooltip'),
+                                     dcc.Input(id='lye_discount', type='number', value='5', style={'width': '45px', 'height': '20px', 'marginLeft':
+   '5px'}),
+                                     html.Label('%'),
+                                     dbc.Tooltip(
+                                         "A typical value is between 3 and 15. This is the percentage of lye you want reduced to allow for this percentage of un-saponified oils to remain",
+                                         target="Discount-tooltip"
+                                     ),
+                                 ]),
+                                 html.Br(),
+                                 html.Div([
+                                     html.Label([
+                                         html.Span(html.Strong('Oils Entered by:'), id='Method-tooltip'),
+                                         dcc.RadioItems(
+                                             options=[
+                                                 {'label': 'Weight', 'value': 'By_Weight'},
+                                                 {'label': 'Percentage', 'value': 'By_Percent'}
+                                             ],
+                                             value='By_Weight',
+                                             id='method_calculation'
+                                         ),
+                                         dcc.Input(
+                                             id='total_weight',
+                                             type='number',
+                                             placeholder='Enter total weight (g or oz)',
+                                             style={'display': 'none'}
+                                         ),
+                                     ]),
+                                     dbc.Tooltip(
+                                         "Do you want to enter exact Oil weights or do you want to use a percentage of a total oil weight?",
+                                         target="Method-tooltip"
+                                     ),
+                                 ])
+                             ], width=3),
+                             dbc.Col(
+                                 html.Div([
+                                     html.Label(html.Strong('Calculate Water As:')),
+                                     html.Div(
+                                         [
+                                             dcc.RadioItems(
+                                                 id='water_calculation',
+                                                 options=[
+                                                     {
+                                                         'label': html.Div(
+                                                             [
+                                                                 html.Label(
+                                                                     [
+                                                                         '% of Oil Weight: ',
+                                                                         dcc.Input(
+                                                                             id='water_by_oil_input',
+                                                                             type='number',
+                                                                             value='38',
+                                                                             style={'width': '45px', 'height': '20px', 'marginLeft': '15px'}
+                                                                         )
+                                                                     ],
+                                                                     style={'display': 'flex', 'alignItems': 'center'}
+                                                                 ),
+                                                                 html.Label('%'),
+                                                             ],
+                                                             style={'display': 'inline-flex', 'alignItems': 'center'}
+                                                         ),
+                                                         'value': 'water_by_oil'
+                                                     },
+                                                     {
+                                                         'label': html.Div(
+                                                             [
+                                                                 html.Label(
+                                                                     [
+                                                                         '% of Lye Weight:',
+                                                                         dcc.Input(
+                                                                             id='water_by_lye_input',
+                                                                             type='number',
+                                                                             value='33',
+                                                                             style={'width': '45px', 'height': '20px', 'marginLeft': '12px'}
+                                                                         )
+                                                                     ],
+                                                                     style={'display': 'flex', 'alignItems': 'center'}
+                                                                 ),
+                                                                 html.Label('%'),
+                                                             ],
+                                                             style={'display': 'inline-flex', 'alignItems': 'center'}
+                                                         ),
+                                                         'value': 'water_by_lye'
+                                                     },
+                                                     {
+                                                         'label': html.Div(
+                                                             [
+                                                                 html.Label(
+                                                                     [
+                                                                         'Water : Lye Ratio:',
+                                                                         dcc.Input(
+                                                                             id='water_lye_ratio_input',
+                                                                             type='text',
+                                                                             value='2:1',
+                                                                             style={'width': '45px', 'height': '20px', 'marginLeft': '8px'}
+                                                                         )
+                                                                     ],
+                                                                     style={'display': 'flex', 'alignItems': 'center'}
+                                                                 ),
+                                                             ],
+                                                             style={'display': 'inline-flex', 'alignItems': 'center'}
+                                                         ),
+                                                         'value': 'water_lye_ratio'
+                                                     },
+                                                 ],
+                                                 value='water_by_oil',
+                                                 labelStyle={'display': 'block', 'marginRight': '10px'}
+                                             ),
+                                         ]
+                                     )
+                                 ]), width=4
+                             ),
+                         ]),
+                     ], style={"width": "100%"}),
+                     title=html.Strong("Select Your Recipe Parameters"),
+                     item_id="recipe-params-accordion"
+                 )
+             ], active_item="recipe-params-accordion", style={'marginBottom': '20px'})
+         ], width=7),
+     ]),
+
+
+
+
     dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.Br(),
-                html.Div(id='select-oils-pcsf-output-container'),
-                dash_table.DataTable(
-                    id='pcsf-selected-oils-data',
-                    columns=[
-                        {'name': 'PCSF Oil', 'id': 'PCSF Oil'},
-                        {'name': '%TOW', 'id': '%TOW', 'editable': True}
-                    ],
-                    data=[],
-                    editable=True,
-                    row_deletable=True,
-                    style_header={
-                        'fontSize': '13px',
-                        'fontWeight': 'bold',
-                        'paddingLeft': '10px',
-                    },
-                    style_cell={
-                        'text-align': 'left',
-                        'paddingLeft': '10px',
-                        'fontSize': '13px',
-                    },
-                    style_data_conditional=[
-                        {
-                            'if': {
-                                'column_id': '%TOW'
-                            },
-                            'backgroundColor': 'lightgreen',
-                            'color': 'black'
-                        }
-                    ],
-                ),
-                html.Div(id='pcsf-selected-oils-updated'),
-            ], style={"width": "100%", 'paddingLeft': '10px'}),
-            width=2
-        )
-    ]),
-    dbc.Row(
+         dbc.Col([
+             html.Br(),
+             dbc.Accordion([
+                 dbc.AccordionItem(
+                     html.Div([
+                         dbc.Row(
+                             [
+                                 dbc.Col(
+                                     html.Div([
+                                         dcc.Store(id='stored-selected-oils', storage_type='local'),
+                                         #html.Label('Select your recipe oils:'),
+                                         dcc.Dropdown(id='selected-oils', multi=True, style={'width': '100%'})
+                                     ])
+                                 ),
+                             ]
+                         ),html.Br(),
+                         html.Div(id='select-oils-output-container'),
+                         html.Div([
+                             dash_table.DataTable(
+                                 id='selected-oils-data',
+                                 columns=[{'name': col, 'id': col, 'editable': True} for col in dt_oil_columns],
+                                 data=[],
+                                 editable=True,
+                                 row_deletable=True,
+                                 style_header={
+                                     'fontSize': '13px',
+                                     'fontWeight': 'bold',
+                                     'paddingLeft': '10px',
+                                 },
+                                 style_cell={
+                                     'text-align': 'left',
+                                     'paddingLeft': '10px',
+                                     'fontSize': '13px',
+                                 },
+                             ),
+                         ],
+                         ),
+                         html.Div(id='selected-oils-updated'),
+                         html.Div(id='oils-totals', style={'paddingLeft': '10px', 'marginTop': '10px', 'fontWeight': 'bold'}),
+                     ], style={"width": "100%"}),
+                     title=html.Strong("Select Your Recipe Oils"),
+                     item_id="recipe-oils-accordion"
+                 )
+             ], active_item="recipe-oils-accordion", style={'marginBottom': '20px'})
+         ], width=7),
+     ]),
+
+
+    dbc.Row([
+         dbc.Col([
+             html.Br(),
+             dbc.Accordion([
+                 dbc.AccordionItem(
+                     html.Div([
+                         dbc.Row(
+                             [
+                                 dbc.Col(
+                                     html.Div([
+                                         dcc.Store(id='stored-pcsf-selected-oils', storage_type='local'),
+                                         dcc.Dropdown(id='pcsf-selected-oils', multi=True)
+                                     ])
+                                 ),
+                             ]
+                         ),html.Br(),
+                         html.Div(id='select-oils-pcsf-output-container'),
+                         dash_table.DataTable(
+                             id='pcsf-selected-oils-data',
+                             columns=[
+                                 {'name': 'PCSF Oil', 'id': 'PCSF Oil'},
+                                 {'name': '%TOW', 'id': '%TOW', 'editable': True}
+                             ],
+                             data=[],
+                             editable=True,
+                             row_deletable=True,
+                             style_header={
+                                 'fontSize': '13px',
+                                 'fontWeight': 'bold',
+                                 'paddingLeft': '10px',
+                             },
+                             style_cell={
+                                 'text-align': 'left',
+                                 'paddingLeft': '10px',
+                                 'fontSize': '13px',
+                             },
+                             style_data_conditional=[
+                                 {
+                                     'if': {
+                                         'column_id': '%TOW'
+                                     },
+                                     'backgroundColor': 'lightgreen',
+                                     'color': 'black'
+                                 }
+                             ],
+                         ),
+                         html.Div(id='pcsf-selected-oils-updated'),
+                     ], style={"width": "100%", 'paddingLeft': '10px'}),
+                     title=html.Strong("Post Cook Superfat (PCSF) Oils"),
+                     item_id="pcsf-accordion"
+                 )
+             ], active_item="pcsf-accordion", style={'marginBottom': '20px'})
+         ], width=7),
+     ]),
+
+    dbc.Row([
         dbc.Col([
             html.Br(),
-            html.Hr(),
-            html.H3("Additives for HTFHP Soap making:"),
-            html.Hr(),
-        ], width=4)
-    ),
-    dbc.Row([
-        dbc.Col([
             dbc.Accordion([
                 dbc.AccordionItem(
                     additive_table,
-                    title="Additives",
+                    title=html.Strong("HTFHP Additives"),
                     item_id="additives-accordion"
                 )
             ], active_item="additives-accordion", style={'marginBottom': '20px'})
-        ], width=6),
+        ], width=7),
     ]),
-    dbc.Row(
-        dbc.Col([
-            html.Br(),
-            html.Hr(),
-            html.H3("Other Ingredients:"),
-            html.Hr(),
-        ], width=4)
-    ),
+
+
     dbc.Row([
-      dbc.Col([
-      # New table for other ingredients
-        html.Br(),
-        dash_table.DataTable(
-         id='other-ingredients-table',
-         columns=other_ingredient_columns,
-         data=other_ingredient_initial_rows,
-         row_deletable=True,
-        style_cell={
-          'textAlign': 'left',
-          'padding': '10px',
-          'fontSize': '13px',
-        },
-        style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-        style_header={
-          'fontSize': '13px',
-          'fontWeight': 'bold',
-          'paddingLeft': '10px',
-          'backgroundColor' : '#fafafa'
-        },
-        #style_table={'overflowX': 'auto'}
-      ),
-      html.Div(
-        dbc.Button("Add Row", id="add-row-button", color="primary"),
-        style={'display': 'flex', 'justifyContent': 'flex-end', 'marginTop': '20px'}
-      ),
-      #html.Button('Add Row', id='add-row-button' ,style={'display':'right'}),
-      ],width=4)
-    ]),
+         dbc.Col([
+             html.Br(),
+             dbc.Accordion([
+                 dbc.AccordionItem(
+                     html.Div([
+                         html.Br(),
+                         dash_table.DataTable(
+                             id='other-ingredients-table',
+                             columns=other_ingredient_columns,
+                             data=other_ingredient_initial_rows,
+                             row_deletable=True,
+                             style_cell={
+                                 'textAlign': 'left',
+                                 'padding': '10px',
+                                 'fontSize': '13px',
+                             },
+                             style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
+                             style_header={
+                                 'fontSize': '13px',
+                                 'fontWeight': 'bold',
+                                 'paddingLeft': '10px',
+                                 'backgroundColor': '#fafafa'
+                             },
+                         ),
+                         html.Div(
+                             dbc.Button("Add Row", id="add-row-button", color="primary"),
+                             style={'display': 'flex', 'justifyContent': 'flex-end', 'marginTop': '20px'}
+                         ),
+                     ]),
+                     title=html.Strong("Other Ingredients"),
+                     item_id="other-ingredients-accordion"
+                 )
+             ], active_item="other-ingredients-accordion", style={'marginBottom': '20px'})
+         ], width=7),
+     ]),
+
     dbc.Row([
         dbc.Col([
             html.Div(id='error-message', style={'color': 'red'}),
@@ -507,25 +538,27 @@ app.layout = html.Div([
 
     ],className='no-print'),
     html.Div([
-    dbc.Row(
-        dbc.Col(
-            html.Div(id='results'),
-            width=8
-        )
-    ),
+        dbc.Row(
+            dbc.Col(
+                html.Div(id='results'),
+                width=8
+            )
+        ),
     ],className='print-content',style={'width': '100%'}),
     html.Div([
-    dbc.Row(
-      dbc.Col([
-          html.Br(),
-          html.Hr(),
-          html.Br(),
-          dbc.Button('Export Recipe (JSON)', id='export-recipe', n_clicks=0, color='primary'),
-          dcc.Download(id='download-recipe'),  # Add this component
-          html.Div(id='export-recipe-json-output')  # Output for export feedback
-      ], width=4)
-    )],className='no-print',style={'width': '100%'}),
-], style={'paddingLeft': '20px','width': '100%'})
+        dbc.Row(
+            dbc.Col([
+                html.Br(),
+                html.Hr(),
+                html.Br(),
+                dbc.Button('Export Recipe (JSON)', id='export-recipe', n_clicks=0, color='primary'),
+                dcc.Download(id='download-recipe'),  # Add this component
+                html.Div(id='export-recipe-json-output')  # Output for export feedback
+            ], width=4)
+         )],className='no-print',style={'width': '100%'}
+    ),
+    ], style={'paddingLeft': '20px','width': '100%'}
+)
 
 @app.callback(
     Output('other-ingredients-table', 'data'),
@@ -1031,7 +1064,7 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
               other_ingredient_recipe_table,
             ],width=12),
           ])
-      ],style={'left-padding':'20px'})
+      ],style={'paddingLeft':'20px'})
       ],style={'width':'100%'})
   #return html.Div()
 
