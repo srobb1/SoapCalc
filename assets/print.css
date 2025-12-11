@@ -6,6 +6,11 @@
     width: 1500px !important; 
   }
 
+  /* Hide Dash debug menu when printing */
+  .dash-debug-menu__outer {
+    display: none !important;
+  }
+
   .printable-content {
     page-break-before: always;
     margin: 20px;
