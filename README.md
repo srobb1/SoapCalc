@@ -19,16 +19,18 @@ A web-based soap recipe calculator built with Dash that helps soap makers calcul
 ### Prerequisites
 
 - Python 3.8 or higher
-- pip (Python package manager)
+- pip (Python package manager) OR conda
 
-### 1. Clone the Repository
+### Option 1: Using pip and venv
+
+#### 1. Clone the Repository
 
 ```bash
 git clone <repository-url>
 cd soap-calc-python
 ```
 
-### 2. Create a Virtual Environment
+#### 2. Create a Virtual Environment
 
 ```bash
 # On macOS/Linux
@@ -40,7 +42,29 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
-### 3. Install Dependencies
+#### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Option 2: Using Conda
+
+#### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd soap-calc-python
+```
+
+#### 2. Create and Activate Conda Environment
+
+```bash
+conda create --name soap-calc python=3.10
+conda activate soap-calc
+```
+
+#### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
