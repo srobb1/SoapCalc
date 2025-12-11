@@ -141,7 +141,7 @@ app.layout = html.Div([
     dbc.Row(
         dbc.Col(
             html.Div([
-                dcc.Input(id='recipe-notes', placeholder='Enter recipe notes', type='text', style={'width': '30%', 'height': '80px'}),
+                dcc.Textarea(id='recipe-notes', placeholder='Enter recipe notes', style={'width': '30%', 'height': '80px', 'resize': 'vertical', 'padding': '4px'}),
             ])
         )
     ),
