@@ -19,60 +19,43 @@ A web-based soap recipe calculator built with Dash that helps soap makers calcul
 ### Prerequisites
 
 - Python 3.8 or higher
-- pip (Python package manager) OR conda
+- pip (Python package manager) or conda
 
-### Option 1: Using pip and venv
-
-#### 1. Clone the Repository
+### Quick Start
 
 ```bash
 git clone <repository-url>
 cd soap-calc-python
 ```
 
-#### 2. Create a Virtual Environment
+### Option 1: Using venv and pip
 
 ```bash
-# On macOS/Linux
+# Create virtual environment
 python3 -m venv venv
+
+# Activate environment (macOS/Linux)
 source venv/bin/activate
 
-# On Windows
-python -m venv venv
+# Activate environment (Windows)
 venv\Scripts\activate
-```
 
-#### 3. Install Dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
 ### Option 2: Using Conda
 
-#### 1. Clone the Repository
-
 ```bash
-git clone <repository-url>
-cd soap-calc-python
-```
-
-#### 2. Create and Activate Conda Environment
-
-```bash
+# Create and activate environment
 conda create --name soap-calc python=3.10
 conda activate soap-calc
-```
 
-#### 3. Install Dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
 ## Running the Application
-
-Start the development server:
 
 ```bash
 python app.py
@@ -90,45 +73,37 @@ The application will be available at `http://localhost:8050`
 6. **Generate Recipe** - Click "Generate Recipe" to calculate all values
 7. **Export or Print** - Export as JSON or print the recipe
 
-## File Structure
-
-- `app.py` - Main Dash application
-- `recipe_calculator.py` - Core calculation functions
-- `additives_data.py` - HTFHP additives configuration
-- `data/` - Oil properties and SAP values data files
-- `assets/` - CSS and JavaScript files
-
 ## Project Structure
 
 ```
 soap-calc-python/
-├── app.py
-├── recipe_calculator.py
-├── additives_data.py
-├── requirements.txt
-├── README.md
-├── .gitignore
+├── app.py                    # Main Dash application
+├── recipe_calculator.py      # Core calculation functions
+├── additives_data.py         # HTFHP additives configuration
+├── requirements.txt          # Python dependencies
+├── README.md                 # This file
+├── .gitignore               # Git ignore rules
 ├── data/
-│   ├── Oil_Properties.tsv
-│   └── Oil_fats.tsv
+│   ├── Oil_Properties.tsv    # Oil SAP values
+│   └── Oil_fats.tsv          # Oil fatty acid composition
 └── assets/
-    ├── style.css
-    └── print.css
+    ├── style.css             # Main stylesheet
+    └── print.css             # Print stylesheet
 ```
 
 ## Technologies Used
 
-- **Dash** - Web framework
-- **Pandas** - Data manipulation
-- **Bootstrap** - UI components
+- **Dash** - Web application framework
+- **Pandas** - Data manipulation and analysis
+- **Dash Bootstrap Components** - UI components
 - **Plotly** - Interactive visualizations
-
-## License
-
-This project is for personal use.
 
 ## Notes
 
 - Recipes can be saved and loaded via JSON export/import
 - All calculations are performed client-side
 - Print functionality works in most modern browsers
+
+## License
+
+This project is for personal use.
