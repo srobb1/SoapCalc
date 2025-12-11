@@ -441,7 +441,15 @@ app.layout = html.Div([
         ], width=4)
     ),
     dbc.Row([
-        dbc.Col(additive_table, width=6),
+        dbc.Col([
+            dbc.Accordion([
+                dbc.AccordionItem(
+                    additive_table,
+                    title="Additives",
+                    item_id="additives-accordion"
+                )
+            ], active_item="additives-accordion", style={'margin-bottom': '20px'})
+        ], width=6),
     ]),
     dbc.Row(
         dbc.Col([
