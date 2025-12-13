@@ -11,7 +11,42 @@ def convert_to_number(value):
     try:
         return float(value)
     except (ValueError, TypeError):
-        return 0
+            return 0
+
+
+def calculate_other_ingredients(other_ingredients_data, total_oil_weight_grams):
+    """
+    Calculate other ingredients with fixed amounts and percentages
+    
+    Args:
+        other_ingredients_data: List of ingredient dicts with Type, Amount, Unit, etc.
+        total_oil_weight_grams: Total weight of oils in grams
+    
+    Returns:
+        List of ingredient dicts with CalculatedAmount populated
+    """
+    results = []
+    for ingredient in other_ingredients_data:
+        # Skip empty rows
+        if not ingredient.get('Ingredient'):
+            continue
+        
+        ing_copy = ingredient.copy()
+        
+        if ing_copy.get('Type') == '%TOW':
+            # Calculate amount as percentage of total oil weight
+            amount_value = convert_to_number(ing_copy.get('Amount', 0))
+            calculated = amount_value * (total_oil_weight_grams / 100)
+            ing_copy['CalculatedAmount'] = f"{round(calculated, 2)} g"
+        else:
+            # Fixed amount - just use the amount as entered
+            amount = ing_copy.get('Amount', '')
+            unit = ing_copy.get('Unit', '')
+            ing_copy['CalculatedAmount'] = f"{amount} {unit}".strip()
+        
+        results.append(ing_copy)
+    
+    return results
 
 
 def validate_recipe_inputs(recipe_name, data, pcsf_oil_data):

@@ -38,7 +38,9 @@ from recipe_calculator import (
     create_oils_table,
     create_summary_table,
     create_properties_table,
-    create_fats_table
+    create_fats_table,
+    calculate_other_ingredients,
+    convert_to_number
 )
 
 htfhp_tooltip_data = [
@@ -96,14 +98,16 @@ additive_table = dash_table.DataTable(
 
 other_ingredient_columns = [
     {"name": "Ingredient", "id": "Ingredient","editable": True},
+    {"name": "Type", "id": "Type", "editable": False},
     {"name": "Amount", "id": "Amount","editable": True},
     {"name": "Unit", "id": "Unit","editable": True},
+    {"name": "Calculated", "id": "CalculatedAmount", "editable": False},
     {"name": "Notes", "id": "Notes", "editable": True}
 ]
 
 other_ingredient_initial_rows = [
-    {"Ingredient": "", "Amount": "", "Unit": "", "Notes": ""},
-    {"Ingredient": "", "Amount": "", "Unit": "", "Notes": ""}
+    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "CalculatedAmount": "", "Notes": ""},
+    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "CalculatedAmount": "", "Notes": ""}
 ]
 
 # Initialize the app
@@ -512,8 +516,10 @@ app.layout = html.Div([html.Div([html.Div([
                                  'backgroundColor': '#fafafa'
                              },
                          ),
-                         html.Div(
-                             dbc.Button("Add Row", id="add-row-button", color="primary"),
+                         html.Div([
+                             dbc.Button("Add Fixed Amount", id="add-row-button", color="primary", style={'marginRight': '10px'}),
+                             dbc.Button("Add % of Total Weight", id="add-row-percentage-button", color="info")
+                         ],
                              style={'display': 'flex', 'justifyContent': 'flex-end', 'marginTop': '20px'}
                          ),
                      ]),
@@ -566,17 +572,19 @@ app.layout = html.Div([html.Div([html.Div([
 @app.callback(
     Output('other-ingredients-table', 'data'),
     [Input('add-row-button', 'n_clicks'),
+     Input('add-row-percentage-button', 'n_clicks'),
      Input('upload-recipe-json', 'contents')],
     [State('upload-recipe-json', 'filename'),
      State('other-ingredients-table', 'data')],
     prevent_initial_call=True
 )
-def update_other_ingredients_table(n_clicks, contents, filename, data):
+def update_other_ingredients_table(n_clicks_fixed, n_clicks_percent, contents, filename, data):
     """
     Update other ingredients table when adding rows or uploading recipe
     
-    Handles two actions:
-    - Add button: Appends empty row to table
+    Handles three actions:
+    - Add Fixed Amount button: Appends fixed type row
+    - Add % of Total Weight button: Appends percentage type row
     - Upload: Loads ingredients from JSON file
     """
     ctx = callback_context
@@ -594,12 +602,61 @@ def update_other_ingredients_table(n_clicks, contents, filename, data):
                 return new_data
         except Exception as e:
             return no_update
-    elif trigger_id == 'add-row-button' and n_clicks:
-        data.append({"Ingredient": "", "Amount": "", "Unit": "", "Notes": ""})
+    elif trigger_id == 'add-row-button' and n_clicks_fixed:
+        data.append({"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "CalculatedAmount": "", "Notes": ""})
+        return data
+    elif trigger_id == 'add-row-percentage-button' and n_clicks_percent:
+        data.append({"Ingredient": "", "Type": "%TOW", "Amount": "", "Unit": "%", "CalculatedAmount": "", "Notes": ""})
         return data
     else:
         return no_update
 
+
+
+
+@app.callback(
+    Output('other-ingredients-table', 'data', allow_duplicate=True),
+    Input('other-ingredients-table', 'data'),
+    prevent_initial_call=True
+)
+def update_calculated_amounts(table_data):
+    """Update calculated amounts in the table as user types"""
+    if not table_data:
+        return table_data
+    
+    # For display in the input table, use a default total weight of 1000g for preview
+    # Real calculation happens during recipe generation
+    default_total_weight = 1000
+    
+    updated_data = []
+    for row in table_data:
+        if not row.get('Ingredient'):
+            # Keep empty rows as-is
+            updated_data.append(row)
+            continue
+        
+        row_copy = row.copy()
+        
+        if row_copy.get('Type') == '%TOW':
+            # Calculate preview amount as percentage
+            amount_value = convert_to_number(row_copy.get('Amount', 0))
+            if amount_value > 0:
+                calculated = amount_value * (default_total_weight / 100)
+                row_copy['CalculatedAmount'] = f"{round(calculated, 2)} g"
+            else:
+                row_copy['CalculatedAmount'] = ""
+        else:
+            # Fixed amount - show as entered
+            amount = row_copy.get('Amount', '')
+            unit = row_copy.get('Unit', '')
+            if amount:
+                row_copy['CalculatedAmount'] = f"{amount} {unit}".strip()
+            else:
+                row_copy['CalculatedAmount'] = ""
+        
+        updated_data.append(row_copy)
+    
+    return updated_data
 
 def _update_dropdown_state(selected_items, stored_items, all_options):
     """
@@ -960,10 +1017,8 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
    if error:
         return error
  
-   # Create other ingredients table
-   other_ingredient_recipe_table = create_other_ingredients_table(
-       other_ingredients_data, other_ingredient_columns
-   )
+   # Create other ingredients table (will be populated after calculating total weight)
+   other_ingredient_recipe_table = None
 
    if n_clicks > 0 and data:
       lye_discount = float(lye_discount)
@@ -982,6 +1037,12 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
       # Calculate lye requirements
       lye_adjusted, lye_adjusted_naoh, lye_adjusted_koh, total_oil_weight = calculate_lye_requirements(
           data, lye_type, lye_discount
+      )
+      
+      # Calculate other ingredients with proper amounts based on total oil weight
+      calculated_other_ingredients = calculate_other_ingredients(other_ingredients_data, total_oil_weight)
+      other_ingredient_recipe_table = create_other_ingredients_table(
+          calculated_other_ingredients, other_ingredient_columns
       )
       
       # Calculate water requirements
