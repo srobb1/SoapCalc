@@ -222,6 +222,7 @@ def create_other_ingredients_table(other_ingredients_data, other_ingredient_colu
     return dash_table.DataTable(
         columns=other_ingredient_columns,
         data=other_df.to_dict('records'),
+        cell_selectable=False,
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', "white-space": "pre-wrap"},
         style_cell={'textAlign': 'center', 'padding': '8px', "white-space": "pre-wrap"},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
@@ -333,6 +334,7 @@ def create_additives_details(additives_data, pcsf_oil_data, total_oil_weight):
             {'name': 'Directions', 'id': 'directions'}
         ],
         data=recipe_additives_df.to_dict('records'),
+        cell_selectable=False,
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
         style_cell={'textAlign': 'center', 'padding': '8px'},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
@@ -368,6 +370,7 @@ def create_overview_table(total_oil_weight, water_weight_grams, lye_type, lye_di
         id='overview-table',
         columns=transposed_columns,
         data=transposed_data,
+        cell_selectable=False,
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
         style_cell={'textAlign': 'center', 'padding': '5px', 'text-size': '12px'},
@@ -391,6 +394,7 @@ def create_oils_table(recipe_details):
             'Ounces': f"{item['Ounces']:.2f}",
             'Percent': f"{item['Percent']:.2f}"
         } for item in recipe_details],
+        cell_selectable=False,
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
         style_cell={'textAlign': 'center', 'padding': '5px', 'text-size': '12px'},
@@ -456,6 +460,7 @@ def create_summary_table(total_oil_weight, water_weight_grams, water_weight_ounc
         id='summary-table',
         columns=[{'name': col, 'id': col} for col in summary_df.columns],
         data=summary_df.to_dict('records'),
+        cell_selectable=False,
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
         style_cell={'textAlign': 'center', 'padding': '5px', 'text-size': '12px'},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
@@ -474,6 +479,7 @@ def create_properties_table(properties, ranges):
         id='properties-table',
         columns=[{'name': col, 'id': col} for col in prop_data_df.columns],
         data=prop_data_df.to_dict('records'),
+        cell_selectable=False,
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
         style_cell={'textAlign': 'left', 'padding': '5px', 'text-size': '12px'},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
@@ -488,6 +494,7 @@ def create_fats_table(fats):
         id='fats-table',
         columns=[{'name': col, 'id': col} for col in fats_df.columns],
         data=fats_df.to_dict('records'),
+        cell_selectable=False,
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
         style_cell={'textAlign': 'left', 'padding': '5px', 'text-size': '12px'},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
