@@ -443,7 +443,9 @@ app.layout = html.Div([html.Div([html.Div([
                              id='pcsf-selected-oils-data',
                              columns=[
                                  {'name': 'PCSF Oil', 'id': 'PCSF Oil'},
-                                 {'name': '%TOW', 'id': '%TOW', 'editable': True}
+                                 {'name': '%TOW', 'id': '%TOW', 'editable': True},
+                                 {'name': 'Grams', 'id': 'Grams', 'editable': False},
+                                 {'name': 'Ounces', 'id': 'Ounces', 'editable': False}
                              ],
                              data=[],
                              editable=True,
@@ -629,34 +631,49 @@ def update_calculated_amounts(table_data):
     default_total_weight = 1000
     
     updated_data = []
+    data_changed = False
+    
     for row in table_data:
+        row_copy = row.copy()
+        old_calc = row.get('CalculatedAmount', '')
+        
         if not row.get('Ingredient'):
             # Keep empty rows as-is
-            updated_data.append(row)
+            updated_data.append(row_copy)
             continue
-        
-        row_copy = row.copy()
         
         if row_copy.get('Type') == '%TOW':
             # Calculate preview amount as percentage
             amount_value = convert_to_number(row_copy.get('Amount', 0))
             if amount_value > 0:
                 calculated = amount_value * (default_total_weight / 100)
-                row_copy['CalculatedAmount'] = f"{round(calculated, 2)} g"
+                new_calc = f"{round(calculated, 2)} g"
+                if old_calc != new_calc:
+                    row_copy['CalculatedAmount'] = new_calc
+                    data_changed = True
             else:
-                row_copy['CalculatedAmount'] = ""
+                if old_calc != "":
+                    row_copy['CalculatedAmount'] = ""
+                    data_changed = True
         else:
             # Fixed amount - show as entered
             amount = row_copy.get('Amount', '')
             unit = row_copy.get('Unit', '')
             if amount:
-                row_copy['CalculatedAmount'] = f"{amount} {unit}".strip()
+                new_calc = f"{amount} {unit}".strip()
+                if old_calc != new_calc:
+                    row_copy['CalculatedAmount'] = new_calc
+                    data_changed = True
             else:
-                row_copy['CalculatedAmount'] = ""
+                if old_calc != "":
+                    row_copy['CalculatedAmount'] = ""
+                    data_changed = True
         
         updated_data.append(row_copy)
     
-    return updated_data
+    # Only return updated data if something actually changed
+    # This prevents unnecessary updates that interrupt editing
+    return updated_data if data_changed else no_update
 
 def _update_dropdown_state(selected_items, stored_items, all_options):
     """
@@ -698,12 +715,13 @@ def update_pcsf_dropdown(selected_oils, stored_selected_oils):
    Output('pcsf-selected-oils', 'value')],
   [Input('pcsf-selected-oils', 'value'),
    Input('pcsf-selected-oils-data', 'data_timestamp'),
-   Input('upload-recipe-json', 'contents')],
+   Input('upload-recipe-json', 'contents'),
+   Input('selected-oils-data', 'data')],
   [State('upload-recipe-json', 'filename'),
    State('pcsf-selected-oils-data', 'data'),
    State('stored-pcsf-selected-oils', 'data')]
 )
-def update_pcsf_table(selected_oils,timestamp, contents, filename, data, stored_selected_oils):
+def update_pcsf_table(selected_oils, timestamp, contents, oils_data, filename, data, stored_selected_oils):
       """
       Update PCSF oils data table
       
@@ -720,7 +738,7 @@ def update_pcsf_table(selected_oils,timestamp, contents, filename, data, stored_
             if 'json' in filename:
                 recipe = json.loads(decoded)
                 new_data = recipe.get('pcsf-selected-oils-data', [])
-                return new_data, [{'name': 'PCSF Oil', 'id': 'PCSF Oil'} , {'name': '%TOW', 'id': '%TOW' , 'editable': True}], [oil['PCSF Oil'] for oil in new_data]
+                return new_data, [{'name': 'PCSF Oil', 'id': 'PCSF Oil'}, {'name': '%TOW', 'id': '%TOW', 'editable': True}, {'name': 'Grams', 'id': 'Grams', 'editable': False}, {'name': 'Ounces', 'id': 'Ounces', 'editable': False}], [oil['PCSF Oil'] for oil in new_data]
         except Exception as e:
             return (no_update,no_update,no_update)
 
@@ -742,8 +760,26 @@ def update_pcsf_table(selected_oils,timestamp, contents, filename, data, stored_
                   '%TOW': 0,
               })
 
+
+      # Calculate grams and ounces for PCSF oils
+      if oils_data:
+          total_oil_weight = sum(convert_to_number(row.get('Grams', 0)) for row in oils_data)
+          for row in new_data:
+              tow_value = convert_to_number(row.get('%TOW', 0))
+              if tow_value > 0 and total_oil_weight > 0:
+                  grams = tow_value * (total_oil_weight / 100)
+                  ounces = grams / 28.3495
+                  row['Grams'] = round(grams, 2)
+                  row['Ounces'] = round(ounces, 2)
+              else:
+                  row['Grams'] = ""
+                  row['Ounces'] = ""
+
       return new_data, [
-        {'name': 'PCSF Oil', 'id': 'PCSF Oil'} , {'name': '%TOW', 'id': '%TOW' , 'editable': True}
+        {'name': 'PCSF Oil', 'id': 'PCSF Oil'},
+        {'name': '%TOW', 'id': '%TOW', 'editable': True},
+        {'name': 'Grams', 'id': 'Grams', 'editable': False},
+        {'name': 'Ounces', 'id': 'Ounces', 'editable': False}
       ], selected_oils
 
 
@@ -752,6 +788,8 @@ def update_pcsf_table(selected_oils,timestamp, contents, filename, data, stored_
   Output('total_weight', 'style'),
   Input('method_calculation', 'value')
 )
+
+
 def show_hide_total_weight_input(method):
   """Show/hide total weight input field based on calculation method"""
   if method == 'By_Percent':
