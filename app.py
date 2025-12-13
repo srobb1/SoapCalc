@@ -23,7 +23,7 @@ saturated_fats = ("Lauric","Myristic","Palmitic","Stearic")
 unsaturated_fats = ("Oleic","Linoleic","Linolenic","Ricinoleic")
 
 dt_oil_columns = ['Oil', 'NaOH SAP', 'KOH SAP', 'Grams', 'Ounces', 'Percent']
-pcsf=("Argan Oil","Apricot Kernal Oil", "Coconut Oil","Olive Oil","Sweet Almond Oil","Cocoa Butter","Shea Butter")
+pcsf=("Argan Oil","Apricot Kernal Oil", "Coconut Oil","Olive Oil","Sweet Almond Oil","Cocoa Butter","Shea Butter","Jojoba Oil")
 
 # Import additive data and calculator functions
 from additives_data import htfhp_additive_rowData, htfhp_tooltips, section_colors
@@ -1219,7 +1219,7 @@ def display_oils_totals(data):
     total_percent = sum(float(row.get('Percent', 0)) for row in data)
     
     # Color total percent text orange if over 100%
-    percent_color = 'orange' if total_percent > 100 else 'black'
+    percent_color = 'orange' if total_percent != 100 else 'black'
     
     return html.Div([
         f"Total Grams: {total_grams:.2f} | Total Ounces: {total_ounces:.2f} | ",
