@@ -190,7 +190,8 @@ app.layout = html.Div([html.Div([html.Div([
                                              'padding': '8px',
                                              'border': '1px solid #ccc',
                                              'borderRadius': '0.25rem',
-                                             'fontFamily': 'inherit'
+                                             'fontFamily': 'inherit',
+                                             'whiteSpace': 'pre-wrap'
                                          }
                                      ),
                                  ], width=9)
@@ -1159,7 +1160,7 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
           ]),
           dbc.Row([
             dbc.Col([
-              html.Label(recipe_notes),
+              html.Div(recipe_notes, style={'whiteSpace': 'pre-wrap'}),
               html.Br(),
               html.Br(),
            ],width=12)
