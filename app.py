@@ -101,13 +101,22 @@ other_ingredient_columns = [
     {"name": "Type", "id": "Type", "editable": False},
     {"name": "Amount", "id": "Amount","editable": True},
     {"name": "Unit", "id": "Unit","editable": True},
-    {"name": "Calculated", "id": "CalculatedAmount", "editable": False},
     {"name": "Notes", "id": "Notes", "editable": True}
 ]
 
+# Columns for the generated recipe table (includes Calculated column)
+other_ingredient_recipe_columns = [
+    {"name": "Ingredient", "id": "Ingredient"},
+    {"name": "Type", "id": "Type"},
+    {"name": "Amount", "id": "Amount"},
+    {"name": "Unit", "id": "Unit"},
+    {"name": "Calculated", "id": "CalculatedAmount"},
+    {"name": "Notes", "id": "Notes"}
+]
+
 other_ingredient_initial_rows = [
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "CalculatedAmount": "", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "CalculatedAmount": "", "Notes": ""}
+    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
+    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""}
 ]
 
 # Initialize the app
@@ -605,10 +614,10 @@ def update_other_ingredients_table(n_clicks_fixed, n_clicks_percent, contents, f
         except Exception as e:
             return no_update
     elif trigger_id == 'add-row-button' and n_clicks_fixed:
-        data.append({"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "CalculatedAmount": "", "Notes": ""})
+        data.append({"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""})
         return data
     elif trigger_id == 'add-row-percentage-button' and n_clicks_percent:
-        data.append({"Ingredient": "", "Type": "%TOW", "Amount": "", "Unit": "%", "CalculatedAmount": "", "Notes": ""})
+        data.append({"Ingredient": "", "Type": "%TOW", "Amount": "", "Unit": "%", "Notes": ""})
         return data
     else:
         return no_update
@@ -616,64 +625,6 @@ def update_other_ingredients_table(n_clicks_fixed, n_clicks_percent, contents, f
 
 
 
-@app.callback(
-    Output('other-ingredients-table', 'data', allow_duplicate=True),
-    Input('other-ingredients-table', 'data'),
-    prevent_initial_call=True
-)
-def update_calculated_amounts(table_data):
-    """Update calculated amounts in the table as user types"""
-    if not table_data:
-        return table_data
-    
-    # For display in the input table, use a default total weight of 1000g for preview
-    # Real calculation happens during recipe generation
-    default_total_weight = 1000
-    
-    updated_data = []
-    data_changed = False
-    
-    for row in table_data:
-        row_copy = row.copy()
-        old_calc = row.get('CalculatedAmount', '')
-        
-        if not row.get('Ingredient'):
-            # Keep empty rows as-is
-            updated_data.append(row_copy)
-            continue
-        
-        if row_copy.get('Type') == '%TOW':
-            # Calculate preview amount as percentage
-            amount_value = convert_to_number(row_copy.get('Amount', 0))
-            if amount_value > 0:
-                calculated = amount_value * (default_total_weight / 100)
-                new_calc = f"{round(calculated, 2)} g"
-                if old_calc != new_calc:
-                    row_copy['CalculatedAmount'] = new_calc
-                    data_changed = True
-            else:
-                if old_calc != "":
-                    row_copy['CalculatedAmount'] = ""
-                    data_changed = True
-        else:
-            # Fixed amount - show as entered
-            amount = row_copy.get('Amount', '')
-            unit = row_copy.get('Unit', '')
-            if amount:
-                new_calc = f"{amount} {unit}".strip()
-                if old_calc != new_calc:
-                    row_copy['CalculatedAmount'] = new_calc
-                    data_changed = True
-            else:
-                if old_calc != "":
-                    row_copy['CalculatedAmount'] = ""
-                    data_changed = True
-        
-        updated_data.append(row_copy)
-    
-    # Only return updated data if something actually changed
-    # This prevents unnecessary updates that interrupt editing
-    return updated_data if data_changed else no_update
 
 def _update_dropdown_state(selected_items, stored_items, all_options):
     """
@@ -1080,7 +1031,7 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
       # Calculate other ingredients with proper amounts based on total oil weight
       calculated_other_ingredients = calculate_other_ingredients(other_ingredients_data, total_oil_weight)
       other_ingredient_recipe_table = create_other_ingredients_table(
-          calculated_other_ingredients, other_ingredient_columns
+          calculated_other_ingredients, other_ingredient_recipe_columns
       )
       
       # Calculate water requirements
