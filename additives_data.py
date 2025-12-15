@@ -27,7 +27,6 @@ htfhp_additive_rowData = [
     {"section": "Fluid Enhancer", 'Additive': 'Coconut Yogurt (2-5% TOW)', 'Value': 'Add room temperature or warmed'},
     {"section": "Fluid Enhancer", 'Additive': 'Juice/Fruit Puree (2-5% TOW)', 'Value': 'WARM before adding to HTHP'},
     {"section": "Fluid Enhancer", 'Additive': 'Tofu (2-5% TOW)', 'Value': 'Add room temperature'},
-    {"section": "Soap Solvent", 'Additive': 'Glycerin (varies)', 'Value': 'NOT recommended for HP - use for colorant only'},
     {"section": "Soap Solvent", 'Additive': 'Molasses (1-5% TOW)', 'Value': 'Heat-sensitive - may cause caramelization'},
 ]
 
@@ -69,7 +68,6 @@ htfhp_tooltips = [
     {"section": "Section for fluid enhancers", "Additive": "Coconut yogurt mixed with beet lactic acid or citric acid is a vegan option. Provides fluidity similar to yogurt with acidic properties. Add room temperature or warmed. NOTE: All fluid enhancers 2-5% TOW.", "Value": "2-5% TOW recommended"},
     {"section": "Section for fluid enhancers", "Additive": "Fruit juices and purees add fluidity with natural sugars. More concentrated water sources than milk. IMPORTANT: Warm before adding to HTHP recipes. NOTE: All fluid enhancers 2-5% TOW.", "Value": "2-5% TOW recommended"},
     {"section": "Section for fluid enhancers", "Additive": "Tofu is a plant-based option for increasing fluidity. Provides texture and properties similar to yogurt. Add room temperature. NOTE: All fluid enhancers 2-5% TOW.", "Value": "2-5% TOW recommended"},
-    {"section": "Soap solvent - NOT recommended for HP", "Additive": "Glycerin is a natural byproduct of soap that acts as humectant, emollient, and soap solvent. Increases lather formation rate and bubble longevity. WARNING: PDF author does NOT recommend glycerin for hot process soap, only for cold/melt & pour. Bridges oil-water gap.", "Value": "Varies - not recommended for HP"},
     {"section": "Soap solvent - sugar source", "Additive": "Molasses is a sugar source that increases lather (bubbly). Heat-sensitive: causes caramelization ranging from light tan to deep brown/near black depending on temperature and duration. Similar effect to honey. Can also add: maple syrup, corn syrup.", "Value": "1-5% TOW recommended"},
 ]
 
