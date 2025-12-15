@@ -1243,21 +1243,19 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
       
           dbc.Row([
             dbc.Col([
-              html.H4(recipe_name,className="print-header"),
+              html.H4(recipe_name, className="print-header", style={'marginBottom': '4px', 'marginTop': '0px'}),
             ],width=12)
           ]),
           dbc.Row([
             dbc.Col([
-              html.Div(recipe_notes, style={'whiteSpace': 'pre-wrap'}),
-              html.Br(),
-              html.Br(),
+              html.Div(recipe_notes, style={'whiteSpace': 'pre-wrap', 'fontSize': '10px', 'marginBottom': '4px'}),
            ],width=12)
           ]),
           
           dbc.Row([
             dbc.Col([
               compliance_report,
-            ],width=12)
+            ],width=12, style={'marginBottom': '4px'})
           ]),
           
           dbc.Row([
@@ -1270,21 +1268,29 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
               dbc.Col([
                 properties_table,
               ],width=4),
-          ]),
+          ], style={'marginBottom': '4px'}),
           dbc.Row([
             dbc.Col([            
-              html.Br(),
               data_table,
-              html.Br(),
+            ],width=12, style={'marginBottom': '6px'}),
+          ]),
+          dbc.Row([
+            dbc.Col([
               summary_table,
-              html.Br(),
+            ],width=12, style={'marginBottom': '6px'}),
+          ]),
+          dbc.Row([
+            dbc.Col([
               recipe_additives_table,
-              html.Br(),
+            ],width=12, style={'marginBottom': '6px'}),
+          ]),
+          dbc.Row([
+            dbc.Col([
               other_ingredient_recipe_table,
             ],width=12),
           ])
-      ],style={'paddingLeft':'20px'})
-      ],style={'width':'100%'})
+      ], style={'paddingLeft': '10px', 'paddingRight': '10px'})
+      ], style={'width': '100%'})
   #return html.Div()
 
 

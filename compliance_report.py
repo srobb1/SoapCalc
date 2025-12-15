@@ -4,6 +4,7 @@ Checks recipe against 11 HTFHP criteria from The Ultimate Guide to Hot Process S
 """
 import pandas as pd
 from dash import dash_table, html
+import dash_bootstrap_components as dbc
 
 
 def convert_to_number(value):
@@ -35,13 +36,13 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
     
     compliance_results = []
     
-    # 1. Water 36-40% of total weight
-    water_percent = (water_weight / total_weight) * 100 if total_weight > 0 else 0
-    water_pass = 36 <= water_percent <= 40
+    # 1. Water 36-40% of oil weight (NOT total weight)
+    water_to_oil_percent = (water_weight / total_oil_weight) * 100 if total_oil_weight > 0 else 0
+    water_pass = 36 <= water_to_oil_percent <= 40
     compliance_results.append({
         'Criterion': '1. Water 36-40%',
         'Status': '✓' if water_pass else '✗',
-        'Actual': f'{water_percent:.1f}%',
+        'Actual': f'{water_to_oil_percent:.1f}%',
         'Expected': '36-40%',
         'Pass': water_pass
     })
@@ -141,10 +142,11 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
         'Pass': pcsf_pass
     })
     
-    # 9. Salt (3-4% SL or 0.5-1% NaCl)
+    # 9. Salt (3-4% SL Sodium Lactate or 0.5-1% NaCl Sodium Chloride)
     salt_value = None
     for row in (additives_data or []):
-        if 'salt' in str(row.get('Additive', '')).lower():
+        additive_name = str(row.get('Additive', '')).lower()
+        if 'sodium lactate' in additive_name or 'sodium chloride' in additive_name or 'salt' in additive_name:
             salt_value = convert_to_number(row.get('Value', 0))
             break
     has_salt = salt_value is not None and salt_value > 0
@@ -157,10 +159,11 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
         'Pass': salt_pass
     })
     
-    # 10. Sugar (1-5% TOW)
+    # 10. Sugar (1-5% TOW) - includes sugar, honey, sorbitol
     sugar_value = None
     for row in (additives_data or []):
-        if 'sugar' in str(row.get('Additive', '')).lower():
+        additive_name = str(row.get('Additive', '')).lower()
+        if 'sugar' in additive_name or 'honey' in additive_name or 'sorbitol' in additive_name:
             sugar_value = convert_to_number(row.get('Value', 0))
             break
     has_sugar = sugar_value is not None and sugar_value > 0
@@ -192,17 +195,19 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
     # Create compliance dataframe
     compliance_df = pd.DataFrame(compliance_results)
     
+    # Split results into three parts
+    left_results = compliance_results[:4]      # 1-4
+    middle_results = compliance_results[4:8]   # 5-8
+    right_results = compliance_results[8:]     # 9-11
+    
     # Create table with conditional styling
     pass_count = sum(1 for r in compliance_results if r['Pass'])
     pass_percent = (pass_count / len(compliance_results)) * 100
     
-    return html.Div([
-        html.H4("HTFHP Recipe Compliance Report", style={'marginTop': '20px', 'marginBottom': '15px', 'fontWeight': 'bold'}),
-        html.Div(f"✓ {pass_count}/{len(compliance_results)} criteria met ({pass_percent:.0f}%)", 
-                style={'marginBottom': '15px', 'fontSize': '14px', 'fontWeight': 'bold',
-                       'color': 'green' if pass_count == len(compliance_results) else 'orange'}),
-        dash_table.DataTable(
-            id='compliance-table',
+    # Helper function to create compliance table
+    def create_compliance_table(data, table_id):
+        return dash_table.DataTable(
+            id=table_id,
             columns=[
                 {'name': 'Criterion', 'id': 'Criterion'},
                 {'name': 'Status', 'id': 'Status'},
@@ -216,12 +221,12 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
                     'Actual': r['Actual'],
                     'Expected': r['Expected'],
                 }
-                for r in compliance_results
+                for r in data
             ],
             cell_selectable=False,
-            style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto', 'marginBottom': '30px'},
-            style_cell={'textAlign': 'left', 'padding': '10px', 'fontSize': '12px'},
-            style_header={'backgroundColor': '#e8f4f8', 'fontWeight': 'bold', 'border': '1px solid #ccc'},
+            style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
+            style_cell={'textAlign': 'left', 'padding': '2px', 'fontSize': '8px'},
+            style_header={'backgroundColor': '#e8f4f8', 'fontWeight': 'bold', 'border': '1px solid #ccc', 'padding': '2px', 'fontSize': '7px'},
             style_data_conditional=[
                 {
                     'if': {'column_id': 'Status', 'filter_query': '{Status} contains "✓"'},
@@ -237,4 +242,21 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
                 },
             ]
         )
+    
+    return html.Div([
+        html.H5("HTFHP Compliance", style={'marginTop': '3px', 'marginBottom': '2px', 'fontWeight': 'bold', 'fontSize': '11px'}),
+        html.Div(f"✓ {pass_count}/{len(compliance_results)} criteria met ({pass_percent:.0f}%)", 
+                style={'marginBottom': '3px', 'fontSize': '9px', 'fontWeight': 'bold',
+                       'color': 'green' if pass_count == len(compliance_results) else 'orange'}),
+        dbc.Row([
+            dbc.Col([
+                create_compliance_table(left_results, 'compliance-table-left')
+            ], width=4, style={'paddingRight': '1px'}),
+            dbc.Col([
+                create_compliance_table(middle_results, 'compliance-table-middle')
+            ], width=4, style={'paddingRight': '1px', 'paddingLeft': '1px'}),
+            dbc.Col([
+                create_compliance_table(right_results, 'compliance-table-right')
+            ], width=4, style={'paddingLeft': '1px'})
+        ], style={'marginBottom': '6px'})
     ])
