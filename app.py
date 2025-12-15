@@ -42,6 +42,7 @@ from recipe_calculator import (
     calculate_other_ingredients,
     convert_to_number
 )
+from compliance_report import create_compliance_report
 
 htfhp_tooltip_data = [
     {column: {'value': str(row[column]), 'type': 'text'} for column in row}
@@ -1227,6 +1228,12 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
       # Create properties and fats tables
       properties_table = create_properties_table(properties, ranges)
       fats_table = create_fats_table(fats)
+      
+      # Create compliance report
+      compliance_report = create_compliance_report(
+          data, total_oil_weight, water_weight_grams, total_weight,
+          fat_props['saturated'], additives_data, pcsf_oil_data, oil_prop_df
+      )
 
       return  html.Div([
           html.Div(id='print-trigger', style={'display': 'none'}),
@@ -1245,6 +1252,12 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
               html.Br(),
               html.Br(),
            ],width=12)
+          ]),
+          
+          dbc.Row([
+            dbc.Col([
+              compliance_report,
+            ],width=12)
           ]),
           
           dbc.Row([
@@ -1558,6 +1571,18 @@ def search_oils(n_clicks, cleansing_range, hardness_range, condition_range, bubb
         html.P(f"Found {len(filtered_df)} oil(s) matching your criteria:", style={'fontWeight': 'bold'}),
         results_table
     ])
+
+
+# Callback to show/hide print button based on results
+@app.callback(
+    Output('print-button-container', 'style'),
+    Input('results', 'children')
+)
+def show_print_button(results):
+    """Show print button only when results exist"""
+    if results and results != html.Div():
+        return {'display': 'block'}
+    return {'display': 'none'}
 
 
 if __name__ == '__main__':
