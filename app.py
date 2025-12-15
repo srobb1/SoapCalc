@@ -76,6 +76,19 @@ for section, color in section_colors.items():
         }
     ])
 
+# Add visual styling for read-only cells (Add to oil list, See LyeType)
+style_data_conditional.extend([
+    {
+        'if': {
+            'filter_query': '{Value} contains "Add to oil list" || {Value} contains "See LyeType"'
+        },
+        'backgroundColor': '#e8e8e8',
+        'color': '#555',
+        'fontStyle': 'italic',
+        'opacity': '0.8'
+    }
+])
+
 # Convert the list of dictionaries to a DataFrame
 additive_df = pd.DataFrame(htfhp_additive_rowData)
 
