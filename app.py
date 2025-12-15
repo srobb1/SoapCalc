@@ -207,6 +207,12 @@ app.layout = html.Div([html.Div([html.Div([
     ]),
     dbc.Row([
         dbc.Col([
+            html.P('📖 Based on "The Ultimate Guide to Hot Process Soap" by Ashley Green', 
+                   style={'fontSize': '13px', 'color': '#666', 'marginBottom': '10px', 'paddingLeft': '10px', 'fontStyle': 'italic'})
+        ], width=12)
+    ]),
+    dbc.Row([
+        dbc.Col([
                 dbc.Accordion([
                     dbc.AccordionItem(
                         html.Div([
