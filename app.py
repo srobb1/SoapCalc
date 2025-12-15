@@ -117,14 +117,6 @@ other_ingredient_recipe_columns = [
 other_ingredient_initial_rows = [
     {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
     {"Ingredient": "", "Type": "%TOW", "Amount": "", "Unit": "%", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
-    {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
 ]
 
 # Initialize the app
@@ -559,7 +551,7 @@ app.layout = html.Div([html.Div([html.Div([
     ]),
     dbc.Row([
         dbc.Col(
-            dbc.Button('Generate Recipe', id='get-recipe', n_clicks=0, size='lg', style={'backgroundColor':'orange', 'color':'black'}),
+            dbc.Button('Generate Recipe/Update Values', id='get-recipe', n_clicks=0, size='lg', style={'backgroundColor':'orange', 'color':'black'}),
             width='auto'
         ),
         dbc.Col(
