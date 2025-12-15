@@ -114,10 +114,20 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
     
     # 7. Trace accelerant (stearic acid, soap, eugenol)
     trace_accelerants = ['stearic acid', 'soap', 'eugenol']
+    
+    # Check additives table
     has_accelerant = any(
         any(acc.lower() in str(row.get('Value', '')).lower() for acc in trace_accelerants)
         for row in (additives_data or [])
     )
+    
+    # Also check if stearic acid is in recipe oils
+    if not has_accelerant:
+        has_accelerant = any(
+            'stearic acid' in row.get('Oil', '').lower()
+            for row in selected_oils_data
+        )
+    
     compliance_results.append({
         'Criterion': '7. Trace Accelerant',
         'Status': '✓' if has_accelerant else '✗',
