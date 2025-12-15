@@ -26,7 +26,7 @@ dt_oil_columns = ['Oil', 'NaOH SAP', 'KOH SAP', 'Grams', 'Ounces', 'Percent']
 pcsf=("Argan Oil","Apricot Kernal Oil", "Coconut Oil","Olive Oil","Sweet Almond Oil","Cocoa Butter","Shea Butter","Jojoba Oil")
 
 # Import additive data and calculator functions
-from additives_data import htfhp_additive_rowData, htfhp_tooltips, section_colors
+from additives_data import htfhp_additive_rowData, htfhp_tooltips, section_colors, section_descriptions
 from recipe_calculator import (
     validate_recipe_inputs, 
     calculate_lye_requirements,
@@ -48,6 +48,14 @@ htfhp_tooltip_data = [
     {column: {'value': str(row[column]), 'type': 'text'} for column in row}
     for row in htfhp_tooltips
 ]
+
+# Enhance tooltip data with section descriptions
+for i, row in enumerate(htfhp_additive_rowData):
+    section = row.get('section')
+    if section in section_descriptions:
+        # Add description to the section cell tooltip
+        if i < len(htfhp_tooltip_data):
+            htfhp_tooltip_data[i]['section']['value'] = f"{section}\n\n📌 WHY THIS MATTERS:\n{section_descriptions[section]}"
 
 htfhp_additive_columns = [
     {"name": "Category", "id": "section"},

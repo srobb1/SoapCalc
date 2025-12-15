@@ -31,6 +31,19 @@ htfhp_additive_rowData = [
     {"section": "Soap Solvent", 'Additive': 'Molasses (%TOW)', 'Value': None},
 ]
 
+# Section descriptions explaining why each category is important
+section_descriptions = {
+    "Trace Accelerants": "INCREASES CHEMICAL REACTION RATE & EMULSIFICATION. Accelerates trace by increasing molecular contact speed. Essential for HTHP success with saturated or moderate-fat recipes. Acts as emulsion stabilizer for better glide and fluidity during cooking.",
+    
+    "Humectants and Hardeners": "INCREASES FLUIDITY & MAINTAINS GEL PHASE. Sodium lactate binds water molecules, making soap more fluid during cook. Maintains gel phase appearance. Creates denser, harder finished bar. Essential for even consistency throughout HTHP process.",
+    
+    "Lather": "IMPROVES BUBBLE FORMATION, STABILITY & LONGEVITY. Enhances soap's solubility so more soap dissolves in water = faster lather formation. Stabilizes bubbles so lather lasts longer. Creates super sudsy, voluminous lather that feels luxurious.",
+    
+    "Fluid Enhancer": "INCREASES FLUIDITY FOR EASIER WORKING. Binds water molecules in thicker, creamier form than plain water. Creates a fluid, pourable soap that's easy to work with, mix, and pour. Essential for beginners learning HTHP. Allows manipulation during cook without excessive mixing.",
+    
+    "Soap Solvent": "BRIDGES OIL-WATER GAP & ACCELERATES TRACE. Sugar and glycerin aggregate around soap molecules' hydrophilic heads, making them attract water molecules more. This speeds emulsification, reaction rate, and phase change. Increases lather formation rate and bubble stability."
+}
+
 # Define tooltips for each cell
 htfhp_tooltips = [
     {"section": "Oil used to speed up trace", "Additive": "Stearic acid acts as a thicking agent and emulsion stabilizer. Saturated fatty acid that readily combines with lye, accelerating trace. Also hardens finished soap.", "Value": "5-8% TOW recommended"},
