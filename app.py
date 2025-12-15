@@ -76,6 +76,8 @@ additive_table = dash_table.DataTable(
     columns=htfhp_additive_columns,
     data=additive_df.to_dict('records'),
     tooltip_data=htfhp_tooltip_data,
+    tooltip_delay=200,
+    tooltip_duration=None,
     style_cell={
         'textAlign': 'left',
         'padding': '10px',
@@ -125,6 +127,43 @@ app = Dash(__name__,
            external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'],
            suppress_callback_exceptions=True,
            title="Sofia's Soap Calculator")
+
+# Add custom CSS for prettier tooltips
+app.index_string = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+        <style>
+            .dash-table-tooltip {
+                background-color: #2c3e50 !important;
+                color: #ecf0f1 !important;
+                border: 2px solid #3498db !important;
+                border-radius: 8px !important;
+                padding: 12px 16px !important;
+                font-size: 13px !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+                max-width: 300px !important;
+                line-height: 1.6 !important;
+                white-space: pre-wrap !important;
+                word-wrap: break-word !important;
+                z-index: 9999 !important;
+            }
+        </style>
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+'''
 
 # App layout
 app.layout = html.Div([html.Div([html.Div([
