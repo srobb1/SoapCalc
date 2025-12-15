@@ -22,6 +22,9 @@ htfhp_additive_rowData = [
     {"section": "Fluid Enhancer", 'Additive': 'Heavy Cream (%TOW)', 'Value': None},
     {"section": "Fluid Enhancer", 'Additive': 'Goat Milk (%TOW)', 'Value': None},
     {"section": "Fluid Enhancer", 'Additive': 'Almond Milk (%TOW)', 'Value': None},
+    {"section": "Fluid Enhancer", 'Additive': 'Coconut Yogurt (%TOW)', 'Value': None},
+    {"section": "Fluid Enhancer", 'Additive': 'Juice or Fruit Puree (%TOW)', 'Value': None},
+    {"section": "Fluid Enhancer", 'Additive': 'Tofu (%TOW)', 'Value': None},
 ]
 
 # Define tooltips for each cell
@@ -38,12 +41,15 @@ htfhp_tooltips = [
     {"section": "Section for lather", "Additive": "Cetyl Alcohol acts similarly to Jojoba oil. The alcohol adds stability and longevity to the lather.", "Value": "1-3% TOW is recommeded"},
     {"section": "Section for lather", "Additive": "Citric acid helps lather by chelating minerals", "Value": "1-2% TOW is recommended"},
     {"section": "Section for lather", "Additive": "Honey, sugar, and molassas act similarly to Sorbitol, increasing lather. It also has chelating effects.", "Value": "1-5% TOW is recommended"},
-    {"section": "Section for fluid enhancers", "Additive": "Yogurt helps increase fluidity and neutralizes pH. Add room temperature or slightly warmed.", "Value": "2-5% TOW is recommended"},
-    {"section": "Section for fluid enhancers", "Additive": "Milk - Dairy or plant-based helps increase fluidity. Use room temperature or slightly warmed.", "Value": "2-5% TOW is recommended"},
-    {"section": "Section for fluid enhancers", "Additive": "Buttermilk is thicker and creamier, excellent for fluidity. Add room temperature or warmed.", "Value": "2-5% TOW is recommended"},
-    {"section": "Section for fluid enhancers", "Additive": "Heavy cream provides rich fluidity. Thicker consistency - add room temperature or warmed.", "Value": "2-5% TOW is recommended"},
-    {"section": "Section for fluid enhancers", "Additive": "Goat milk is heat sensitive - add after cooking to prevent discoloration. Use room temperature.", "Value": "2-5% TOW is recommended"},
-    {"section": "Section for fluid enhancers", "Additive": "Almond milk provides fluidity with subtle properties. Add room temperature or warmed.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Yogurt helps increase fluidity and neutralizes pH. Add room temperature or slightly warmed. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Milk - Dairy or plant-based helps increase fluidity. Use room temperature or slightly warmed. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Buttermilk is thicker and creamier, excellent for fluidity. Add room temperature or warmed. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Heavy cream provides rich fluidity. Thicker consistency - add room temperature or warmed. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Goat milk is heat sensitive - add after cooking to prevent discoloration. Use room temperature. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Almond milk provides fluidity with subtle properties. Add room temperature or warmed. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Coconut yogurt mixed with beet lactic acid or citric acid is a vegan option. Provides fluidity similar to yogurt. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Fruit juices and purees add fluidity. Warm before adding to HTHP recipes. Use room temperature or warmed. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
+    {"section": "Section for fluid enhancers", "Additive": "Tofu is a plant-based option for increasing fluidity. All fluid enhancers should be 2-5% TOW.", "Value": "2-5% TOW is recommended"},
 ]
 
 # Define colors for each section
