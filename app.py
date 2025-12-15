@@ -1332,12 +1332,10 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
           dbc.Row([
             dbc.Col([            
               data_table,
-            ],width=12, style={'marginBottom': '6px'}),
-          ]),
-          dbc.Row([
+            ],width=6, style={'marginBottom': '6px'}),
             dbc.Col([
               summary_table,
-            ],width=12, style={'marginBottom': '6px'}),
+            ],width=6, style={'marginBottom': '6px'}),
           ]),
           dbc.Row([
             dbc.Col([
