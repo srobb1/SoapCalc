@@ -176,12 +176,13 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
         'Pass': sugar_pass
     })
     
-    # 11. Liquid additives (2-5% TOW yogurt)
+    # 11. Liquid additives (2-5% TOW) - check for any Fluid Enhancer category
     liquid_value = None
     for row in (additives_data or []):
-        if 'yogurt' in str(row.get('Additive', '')).lower():
+        if row.get('section') == 'Fluid Enhancer':
             liquid_value = convert_to_number(row.get('Value', 0))
-            break
+            if liquid_value and liquid_value > 0:
+                break
     has_liquid = liquid_value is not None and liquid_value > 0
     liquid_pass = (2 <= liquid_value <= 5) if has_liquid else False
     compliance_results.append({
