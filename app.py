@@ -383,54 +383,143 @@ app.layout = html.Div([html.Div([html.Div([
 
 
 
-    dbc.Row([
-         dbc.Col([
-             html.Br(),
-             dbc.Accordion([
-                 dbc.AccordionItem(
-                     html.Div([
-                         dbc.Row(
-                             [
-                                 dbc.Col(
-                                     html.Div([
-                                         dcc.Store(id='stored-selected-oils', storage_type='local'),
-                                         #html.Label('Select your recipe oils:'),
-                                         dcc.Dropdown(id='selected-oils', multi=True, style={'width': '100%'})
-                                     ])
-                                 ),
-                             ]
-                         ),html.Br(),
-                         html.Div(id='select-oils-output-container'),
-                         html.Div([
-                             dash_table.DataTable(
-                                 id='selected-oils-data',
-                                 columns=[{'name': col, 'id': col, 'editable': True} for col in dt_oil_columns],
-                                 data=[],
-                                 editable=True,
-                                 row_deletable=True,
-                                 style_header={
-                                     'fontSize': '13px',
-                                     'fontWeight': 'bold',
-                                     'paddingLeft': '10px',
-                                 },
-                                 style_cell={
-                                     'text-align': 'left',
-                                     'paddingLeft': '10px',
-                                     'fontSize': '13px',
-                                 },
-                             ),
-                         ],
-                         ),
-                         html.Div(id='selected-oils-updated'),
-                         html.Div(id='oils-totals', style={'paddingLeft': '10px', 'marginTop': '10px', 'fontWeight': 'bold'}),
-                     ], style={"width": "100%"}),
-                     title=html.Strong("Select Your Recipe Oils"),
-                     item_id="recipe-oils-accordion"
-                 )
-             ], active_item="recipe-oils-accordion", style={'marginBottom': '20px'})
-         ], width=7),
-     ]),
+     dbc.Row([
+          dbc.Col([
+              html.Br(),
+              dbc.Accordion([
+                  dbc.AccordionItem(
+                      html.Div([
+                          dbc.Row(
+                              [
+                                  dbc.Col(
+                                      html.Div([
+                                          dcc.Store(id='stored-selected-oils', storage_type='local'),
+                                          #html.Label('Select your recipe oils:'),
+                                          dcc.Dropdown(id='selected-oils', multi=True, style={'width': '100%'})
+                                      ])
+                                  ),
+                                  dbc.Col(
+                                      dbc.Button('Browse Oil Properties', id='oil-properties-btn', color='info', outline=True, size='sm'),
+                                      width='auto',
+                                      style={'paddingLeft': '10px'}
+                                  )
+                              ]
+                          ),html.Br(),
+                          html.Div(id='select-oils-output-container'),
+                          html.Div([
+                              dash_table.DataTable(
+                                  id='selected-oils-data',
+                                  columns=[{'name': col, 'id': col, 'editable': True} for col in dt_oil_columns],
+                                  data=[],
+                                  editable=True,
+                                  row_deletable=True,
+                                  style_header={
+                                      'fontSize': '13px',
+                                      'fontWeight': 'bold',
+                                      'paddingLeft': '10px',
+                                  },
+                                  style_cell={
+                                      'text-align': 'left',
+                                      'paddingLeft': '10px',
+                                      'fontSize': '13px',
+                                  },
+                              ),
+                          ],
+                          ),
+                          html.Div(id='selected-oils-updated'),
+                          html.Div(id='oils-totals', style={'paddingLeft': '10px', 'marginTop': '10px', 'fontWeight': 'bold'}),
+                      ], style={"width": "100%"}),
+                      title=html.Strong("Select Your Recipe Oils"),
+                      item_id="recipe-oils-accordion"
+                  )
+              ], active_item="recipe-oils-accordion", style={'marginBottom': '20px'})
+          ], width=7),
+      ]),
 
+     dbc.Modal([
+         dbc.ModalHeader(dbc.ModalTitle("Oil Properties Browser")),
+         dbc.ModalBody([
+             html.Div([
+                 dbc.Row([
+                     dbc.Col([
+                         html.Label(html.Strong('Hardness:'), style={'marginBottom': '8px'}),
+                         dcc.RangeSlider(
+                             id='hardness-filter',
+                             min=0,
+                             max=int(oil_prop_df['Hardness'].max()),
+                             step=1,
+                             value=[0, int(oil_prop_df['Hardness'].max())],
+                             marks={i: str(i) for i in range(0, int(oil_prop_df['Hardness'].max()) + 1, 10)},
+                             tooltip={"placement": "bottom", "always_visible": True}
+                         )
+                     ], width=4),
+                     dbc.Col([
+                         html.Label(html.Strong('Cleansing:'), style={'marginBottom': '8px'}),
+                         dcc.RangeSlider(
+                             id='cleansing-filter',
+                             min=0,
+                             max=int(oil_prop_df['Cleansing'].max()),
+                             step=1,
+                             value=[0, int(oil_prop_df['Cleansing'].max())],
+                             marks={i: str(i) for i in range(0, int(oil_prop_df['Cleansing'].max()) + 1, 10)},
+                             tooltip={"placement": "bottom", "always_visible": True}
+                         )
+                     ], width=4),
+                     dbc.Col([
+                         html.Label(html.Strong('Condition:'), style={'marginBottom': '8px'}),
+                         dcc.RangeSlider(
+                             id='condition-filter',
+                             min=0,
+                             max=int(oil_prop_df['Condition'].max()),
+                             step=1,
+                             value=[0, int(oil_prop_df['Condition'].max())],
+                             marks={i: str(i) for i in range(0, int(oil_prop_df['Condition'].max()) + 1, 10)},
+                             tooltip={"placement": "bottom", "always_visible": True}
+                         )
+                     ], width=4),
+                 ]),
+                 html.Br(),
+                 dbc.Row([
+                     dbc.Col([
+                         html.Label(html.Strong('Bubbly:'), style={'marginBottom': '8px'}),
+                         dcc.RangeSlider(
+                             id='bubbly-filter',
+                             min=0,
+                             max=int(oil_prop_df['Bubbly'].max()),
+                             step=1,
+                             value=[0, int(oil_prop_df['Bubbly'].max())],
+                             marks={i: str(i) for i in range(0, int(oil_prop_df['Bubbly'].max()) + 1, 10)},
+                             tooltip={"placement": "bottom", "always_visible": True}
+                         )
+                     ], width=4),
+                     dbc.Col([
+                         html.Label(html.Strong('Creamy:'), style={'marginBottom': '8px'}),
+                         dcc.RangeSlider(
+                             id='creamy-filter',
+                             min=0,
+                             max=int(oil_prop_df['Creamy'].max()),
+                             step=1,
+                             value=[0, int(oil_prop_df['Creamy'].max())],
+                             marks={i: str(i) for i in range(0, int(oil_prop_df['Creamy'].max()) + 1, 10)},
+                             tooltip={"placement": "bottom", "always_visible": True}
+                         )
+                     ], width=4),
+                 ]),
+                 html.Br(),
+                 dbc.Button('Search', id='search-oils-btn', color='primary', className='me-2'),
+                 html.Br(),
+                 html.Br(),
+                 html.Div(id='oil-search-results')
+             ])
+         ]),
+         dbc.ModalFooter([
+             dbc.Button("Close", id="close-oil-modal", className="ms-auto", color='secondary')
+         ]),
+     ],
+     id="oil-properties-modal",
+     size="lg",
+     is_open=False,
+     ),
 
     dbc.Row([
          dbc.Col([
@@ -1387,16 +1476,88 @@ app.clientside_callback(
     prevent_initial_call=True
 )
 
-# Callback to show/hide print button based on results
+# Callback to toggle oil properties modal
 @app.callback(
-    Output('print-button-container', 'style'),
-    Input('results', 'children')
+    Output("oil-properties-modal", "is_open"),
+    [Input("oil-properties-btn", "n_clicks"), Input("close-oil-modal", "n_clicks")],
+    [State("oil-properties-modal", "is_open")],
+    prevent_initial_call=True
 )
-def show_print_button(results):
-    """Show print button only when results exist"""
-    if results and results != html.Div():
-        return {'display': 'block'}
-    return {'display': 'none'}
+def toggle_oil_modal(open_clicks, close_clicks, is_open):
+    """Toggle oil properties modal open/close"""
+    if open_clicks or close_clicks:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output('oil-search-results', 'children'),
+    [Input('search-oils-btn', 'n_clicks')],
+    [State('cleansing-filter', 'value'),
+     State('hardness-filter', 'value'),
+     State('condition-filter', 'value'),
+     State('bubbly-filter', 'value'),
+     State('creamy-filter', 'value')],
+    prevent_initial_call=True
+)
+def search_oils(n_clicks, cleansing_range, hardness_range, condition_range, bubbly_range, creamy_range):
+    """Search and filter oils based on property criteria"""
+    if n_clicks is None or n_clicks == 0:
+        return html.Div()
+    
+    cleansing_min, cleansing_max = cleansing_range
+    hardness_min, hardness_max = hardness_range
+    condition_min, condition_max = condition_range
+    bubbly_min, bubbly_max = bubbly_range
+    creamy_min, creamy_max = creamy_range
+    
+    filtered_df = oil_prop_df[
+        (oil_prop_df['Cleansing'] >= cleansing_min) & (oil_prop_df['Cleansing'] <= cleansing_max) &
+        (oil_prop_df['Hardness'] >= hardness_min) & (oil_prop_df['Hardness'] <= hardness_max) &
+        (oil_prop_df['Condition'] >= condition_min) & (oil_prop_df['Condition'] <= condition_max) &
+        (oil_prop_df['Bubbly'] >= bubbly_min) & (oil_prop_df['Bubbly'] <= bubbly_max) &
+        (oil_prop_df['Creamy'] >= creamy_min) & (oil_prop_df['Creamy'] <= creamy_max)
+    ]
+    
+    if filtered_df.empty:
+        return html.Div([
+            html.Br(),
+            html.P("No oils found matching your criteria.", style={'color': 'red', 'fontWeight': 'bold'})
+        ])
+    
+    results_table = dash_table.DataTable(
+        data=filtered_df.reset_index().to_dict('records'),
+        columns=[
+            {'name': 'Oil', 'id': 'Oil'},
+            {'name': 'Cleansing', 'id': 'Cleansing'},
+            {'name': 'Hardness', 'id': 'Hardness'},
+            {'name': 'Condition', 'id': 'Condition'},
+            {'name': 'Bubbly', 'id': 'Bubbly'},
+            {'name': 'Creamy', 'id': 'Creamy'},
+            {'name': 'Iodine', 'id': 'Iodine'},
+            {'name': 'INS', 'id': 'INS'},
+        ],
+        sort_action="native",
+        style_header={
+            'fontSize': '13px',
+            'fontWeight': 'bold',
+            'paddingLeft': '10px',
+            'backgroundColor': '#fafafa',
+            'cursor': 'pointer'
+        },
+        style_cell={
+            'textAlign': 'left',
+            'paddingLeft': '10px',
+            'fontSize': '12px',
+        },
+        style_as_list_view=True,
+    )
+    
+    return html.Div([
+        html.Br(),
+        html.P(f"Found {len(filtered_df)} oil(s) matching your criteria:", style={'fontWeight': 'bold'}),
+        results_table
+    ])
 
 
 if __name__ == '__main__':
