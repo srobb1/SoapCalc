@@ -232,95 +232,114 @@ def create_other_ingredients_table(other_ingredients_data, other_ingredient_colu
 def create_additives_details(additives_data, pcsf_oil_data, total_oil_weight):
     """
     Create additives details dictionary with calculated weights
+    Dynamically handles any additive with numeric values and proper directions
     
     Returns:
         dash_table.DataTable: Recipe additives table
     """
-    # Extract additive values
-    additives = {row['Additive']: convert_to_number(row['Value']) for row in additives_data}
-    
-    # Build additives details
-    additives_details = {
-        f'Lather: Sorbitol ({additives.get("Sorbitol (%TOW)", 0)}% TOW)': {
-            'value': additives.get('Sorbitol (%TOW)', 0), 
-            'type': 'TOW', 
-            'directions': 'Add to the lye solution, at trace, after the cook, or mixed with colorants.'
-        },
-        f'Lather: Citric Acid ({additives.get("Citric Acid (%TOW)", 0)}% TOW)': {
-            'value': additives.get('Citric Acid (%TOW)', 0), 
-            'type': 'TOW', 
-            'directions': 'Dissolve in the lye solution.'
-        },
-        f'Humectants: Sodium Chloride ({additives.get("Sodium Chloride (%TOW)", 0)}% TOW)': {
-            'value': additives.get('Sodium Chloride (%TOW)', 0), 
-            'type': 'TOW', 
-            'directions': 'Dissolve in the lye solution or add to oils.'
-        },
-        f'Trace Accelerants: Finished Soap ({additives.get("Finished Soap (%TOW)", 0)}% TOW)': {
-            'value': additives.get('Finished Soap (%TOW)', 0), 
-            'type': 'TOW', 
-            'directions': 'Melt with oils.'
-        },
-        f'Trace Accelerants: Eugenol ({additives.get("Eugenol (drops)", 0)} drops)': {
-            'value': additives.get('Eugenol (drops)', 0), 
-            'type': 'drops', 
-            'directions': 'Add a few drops to heated oils.'
-        },
-        f'Humectants: Sodium Lactate ({additives.get("Sodium Lactate (%TOW)", 0)}% TOW)': {
-            'value': additives.get('Sodium Lactate (%TOW)', 0), 
-            'type': 'TOW', 
-            'directions': 'Add 30-60 seconds after mixing oils and lye solution, after a very thick trace, and before the expansion of the recipe.'
-        },
-        f'Lather: Cetyl Alcohol ({additives.get("Cetyl Alcohol (%TOW)", 0)}% TOW)': {
-            'value': additives.get('Cetyl Alcohol (%TOW)', 0), 
-            'type': 'TOW', 
-            'directions': 'Melted and added after trace.'
-        },
-        f'Lather: Honey ({additives.get("Honey (%TOW)", 0)}% TOW)': {
-            'value': additives.get('Honey (%TOW)', 0), 
-            'type': 'TOW', 
-            'directions': 'Add after the cook.'
-        },
-        f'Fluid Enhancer: Yogurt ({additives.get("Yogurt (%TOW)", 0)}% TOW)': {
-            'value': additives.get('Yogurt (%TOW)', 0), 
-            'type': 'TOW', 
-            'directions': 'Add after the cook.'
-        },
+    # Mapping of additive names to their directions
+    additive_directions = {
+        'Sorbitol (1-5% TOW)': 'Add to lye, trace, after cook, or colorants',
+        'Citric Acid (1-2% TOW)': 'Add to lye solution',
+        'Sodium Chloride (0.5-1% TOW)': 'Dissolve in lye or add directly',
+        'Finished Soap (0.05-1% TOW)': 'Grate and melt with oils',
+        'Eugenol (drops)': 'Add drops to heated oil',
+        'Sodium Lactate (3-4% TOW)': 'Add 30-60 sec after mixing oils/lye',
+        'Cetyl Alcohol (1-3% TOW)': 'Add to oils at beginning',
+        'Honey (1-5% TOW)': 'Heat-sensitive - add room temp or after cook',
+        'Yogurt (2-5% TOW)': 'Add room temperature or slightly warmed',
+        'Milk - Dairy/Plant (2-5% TOW)': 'Add room temperature or slightly warmed',
+        'Buttermilk (2-5% TOW)': 'Add room temperature or warmed',
+        'Heavy Cream (2-5% TOW)': 'Add room temperature or warmed',
+        'Goat Milk (2-5% TOW)': 'Add after cook - heat sensitive',
+        'Almond Milk (2-5% TOW)': 'Add room temperature or warmed',
+        'Coconut Yogurt (2-5% TOW)': 'Add room temperature or warmed',
+        'Juice/Fruit Puree (2-5% TOW)': 'WARM before adding to HTHP',
+        'Tofu (2-5% TOW)': 'Add room temperature',
+        'Molasses (1-5% TOW)': 'Heat-sensitive - may cause caramelization',
     }
+    
+    # Conversion factor
+    drops_to_grams = 1 / 30
+    
+    recipe_additives_data = []
+    
+    # Process all additives from the data table
+    for row in additives_data:
+        additive_name = row.get('Additive', '')
+        value_str = str(row.get('Value', '')).strip()
+        
+        # Skip if no numeric value
+        if not value_str or value_str in ['', 'Add to oil list', 'Grate and melt with oils', 'Add drops to heated oil', 'See LyeType']:
+            continue
+        
+        # Try to convert value to number
+        try:
+            value = float(value_str)
+        except ValueError:
+            continue
+        
+        if value <= 0:
+            continue
+        
+        # Determine the type and calculate grams
+        if 'drops' in additive_name.lower():
+            unit_type = 'drops'
+            grams = value * drops_to_grams
+            weight_display = f"{value:.0f} drops"
+        elif '%TOW' in additive_name:
+            unit_type = 'TOW'
+            grams = round((value/100) * total_oil_weight, 2)
+            weight_display = f"{grams:.2f}g"
+        else:
+            # Default to TOW if not specified
+            unit_type = 'TOW'
+            grams = round((value/100) * total_oil_weight, 2)
+            weight_display = f"{grams:.2f}g"
+        
+        ounces = grams / 28.3495
+        ounces_display = f"{ounces:.2f}oz"
+        
+        # Get directions from mapping or use default
+        directions = additive_directions.get(additive_name, 'Add as directed')
+        
+        # Create section label (try to extract from additive name)
+        section = ''
+        if any(x in additive_name for x in ['Stearic', 'Lauric', 'Myristic', 'Finished Soap', 'Eugenol']):
+            section = 'Trace Accelerants: '
+        elif any(x in additive_name for x in ['Sodium Lactate', 'Sodium Chloride']):
+            section = 'Humectants: '
+        elif any(x in additive_name for x in ['Sorbitol', 'Cetyl', 'Citric Acid', 'Honey']):
+            section = 'Lather: '
+        elif any(x in additive_name for x in ['Yogurt', 'Milk', 'Buttermilk', 'Cream', 'Juice', 'Tofu']):
+            section = 'Fluid Enhancer: '
+        elif any(x in additive_name for x in ['Molasses']):
+            section = 'Soap Solvent: '
+        
+        recipe_additives_data.append({
+            'Additive': f'{section}{additive_name}',
+            'grams': weight_display,
+            'ounces': ounces_display,
+            'directions': directions
+        })
     
     # Add PCSF oils
     for row in pcsf_oil_data:
         oil = row['PCSF Oil']
         tow = row['%TOW']
-        additives_details[f'PCSF:{oil} ({tow} %TOW)'] = {
-            'value': int(tow), 
-            'type': 'TOW', 
-            'directions': 'Add after the cook.'
-        }
-    
-    # Conversion factor
-    drops_to_grams = 1 / 30
-    
-    # Filter out additives with None or zero values
-    filtered_additives = {k: v for k, v in additives_details.items() if v['value'] is not None and v['value'] > 0}
-    
-    # Convert to DataFrame
-    recipe_additives_data = []
-    for k, v in filtered_additives.items():
-        if v['type'] == 'TOW':
-            grams = round((v['value']/100) * total_oil_weight, 2)
-        elif v['type'] == 'drops':
-            grams = v['value'] * drops_to_grams
-        else:
-            grams = v['value']
-        
-        ounces = grams / 28.3495
-        recipe_additives_data.append({
-            'Additive': k,
-            'grams': f"{grams:.2f}g",
-            'ounces': f"{ounces:.2f}oz",
-            'directions': v['directions']
-        })
+        try:
+            tow_val = float(tow)
+            if tow_val > 0:
+                grams = round((tow_val/100) * total_oil_weight, 2)
+                ounces = grams / 28.3495
+                recipe_additives_data.append({
+                    'Additive': f'PCSF: {oil}',
+                    'grams': f"{grams:.2f}g",
+                    'ounces': f"{ounces:.2f}oz",
+                    'directions': 'Add after the cook.'
+                })
+        except (ValueError, TypeError):
+            pass
     
     recipe_additives_df = pd.DataFrame(recipe_additives_data)
     
