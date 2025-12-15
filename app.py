@@ -1136,11 +1136,11 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
                     percent = float(row.get('Percent', 0))
                     total_percent += percent
                     if unit == 'Grams':
-                        row['Grams'] = (percent / 100) * total_weight
+                        row['Grams'] = round((percent / 100) * total_weight, 1)
                         row['Ounces'] = round(row['Grams'] / 28.3495, 2)
                     else:
                         row['Ounces'] = round((percent / 100) * total_weight, 2)
-                        row['Grams'] = row['Ounces'] * 28.3495
+                        row['Grams'] = round(row['Ounces'] * 28.3495, 1)
             if total_percent != 100:
                 if total_percent < 100:
                     difference = 100 - total_percent
