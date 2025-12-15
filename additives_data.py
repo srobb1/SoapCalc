@@ -18,6 +18,7 @@ htfhp_additive_rowData = [
     {'section': "Lather", 'Additive': 'Cetyl Alcohol (1-3% TOW)', 'Value': 'Add to oils at beginning'},
     {'section': "Lather", 'Additive': 'Citric Acid (1-2% TOW)', 'Value': 'Add to lye solution'},
     {'section': "Lather", 'Additive': 'Honey (1-5% TOW)', 'Value': 'Heat-sensitive - add room temp or after cook'},
+    {'section': "Lather", 'Additive': 'Molasses (1-5% TOW)', 'Value': 'Heat-sensitive - may cause caramelization'},
     {"section": "Fluid Enhancer", 'Additive': 'Yogurt (2-5% TOW)', 'Value': 'Add room temperature or slightly warmed'},
     {"section": "Fluid Enhancer", 'Additive': 'Milk - Dairy/Plant (2-5% TOW)', 'Value': 'Add room temperature or slightly warmed'},
     {"section": "Fluid Enhancer", 'Additive': 'Buttermilk (2-5% TOW)', 'Value': 'Add room temperature or warmed'},
@@ -27,7 +28,6 @@ htfhp_additive_rowData = [
     {"section": "Fluid Enhancer", 'Additive': 'Coconut Yogurt (2-5% TOW)', 'Value': 'Add room temperature or warmed'},
     {"section": "Fluid Enhancer", 'Additive': 'Juice/Fruit Puree (2-5% TOW)', 'Value': 'WARM before adding to HTHP'},
     {"section": "Fluid Enhancer", 'Additive': 'Tofu (2-5% TOW)', 'Value': 'Add room temperature'},
-    {"section": "Soap Solvent", 'Additive': 'Molasses (1-5% TOW)', 'Value': 'Heat-sensitive - may cause caramelization'},
 ]
 
 # Section descriptions explaining why each category is important
@@ -68,7 +68,7 @@ htfhp_tooltips = [
     {"section": "Section for fluid enhancers", "Additive": "Coconut yogurt mixed with beet lactic acid or citric acid is a vegan option. Provides fluidity similar to yogurt with acidic properties. Add room temperature or warmed. NOTE: All fluid enhancers 2-5% TOW.", "Value": "2-5% TOW recommended"},
     {"section": "Section for fluid enhancers", "Additive": "Fruit juices and purees add fluidity with natural sugars. More concentrated water sources than milk. IMPORTANT: Warm before adding to HTHP recipes. NOTE: All fluid enhancers 2-5% TOW.", "Value": "2-5% TOW recommended"},
     {"section": "Section for fluid enhancers", "Additive": "Tofu is a plant-based option for increasing fluidity. Provides texture and properties similar to yogurt. Add room temperature. NOTE: All fluid enhancers 2-5% TOW.", "Value": "2-5% TOW recommended"},
-    {"section": "Soap solvent - sugar source", "Additive": "Molasses is a sugar source that increases lather (bubbly). Heat-sensitive: causes caramelization ranging from light tan to deep brown/near black depending on temperature and duration. Similar effect to honey. Can also add: maple syrup, corn syrup.", "Value": "1-5% TOW recommended"},
+    {"section": "Lather - sugar source", "Additive": "Molasses is a sugar source that increases lather (bubbly). Heat-sensitive: causes caramelization ranging from light tan to deep brown/near black depending on temperature and duration. Similar effect to honey. Can also add: maple syrup, corn syrup. Per PDF: other sugars positively affect lather including table sugar, honey, and molasses.", "Value": "1-5% TOW recommended"},
 ]
 
 # Define colors for each section

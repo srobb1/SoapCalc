@@ -247,6 +247,7 @@ def create_additives_details(additives_data, pcsf_oil_data, total_oil_weight):
         'Sodium Lactate (3-4% TOW)': 'Add 30-60 sec after mixing oils/lye',
         'Cetyl Alcohol (1-3% TOW)': 'Add to oils at beginning',
         'Honey (1-5% TOW)': 'Heat-sensitive - add room temp or after cook',
+        'Molasses (1-5% TOW)': 'Heat-sensitive - add room temp or after cook',
         'Yogurt (2-5% TOW)': 'Add after cook - room temperature or slightly warmed',
         'Milk - Dairy/Plant (2-5% TOW)': 'Add after cook - room temperature or slightly warmed',
         'Buttermilk (2-5% TOW)': 'Add after cook - room temperature or warmed',
@@ -256,7 +257,6 @@ def create_additives_details(additives_data, pcsf_oil_data, total_oil_weight):
         'Coconut Yogurt (2-5% TOW)': 'Add after cook - room temperature or warmed',
         'Juice/Fruit Puree (2-5% TOW)': 'WARM before adding to HTHP after cook',
         'Tofu (2-5% TOW)': 'Add room temperature after cook',
-        'Molasses (1-5% TOW)': 'Heat-sensitive - may cause caramelization',
     }
     
     # Conversion factor
@@ -309,7 +309,7 @@ def create_additives_details(additives_data, pcsf_oil_data, total_oil_weight):
             section = 'Trace Accelerants: '
         elif any(x in additive_name for x in ['Sodium Lactate', 'Sodium Chloride']):
             section = 'Humectants: '
-        elif any(x in additive_name for x in ['Sorbitol', 'Cetyl', 'Citric Acid', 'Honey']):
+        elif any(x in additive_name for x in ['Sorbitol', 'Cetyl', 'Citric Acid', 'Honey', 'Molasses']):
             section = 'Lather: '
         elif any(x in additive_name for x in ['Yogurt', 'Milk', 'Buttermilk', 'Cream', 'Juice', 'Tofu']):
             section = 'Fluid Enhancer: '
