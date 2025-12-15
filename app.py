@@ -320,7 +320,7 @@ app.layout = html.Div([html.Div([html.Div([
                              ], width=2),
                              dbc.Col([
                                  html.Div([
-                                     html.Label(html.Strong('Lye Discount:'), id='Discount-tooltip'),
+                                     html.Label(html.Strong('Lye Discount (Cook Superfat):'), id='Discount-tooltip'),
                                      dcc.Input(id='lye_discount', type='number', value='5', style={'width': '45px', 'height': '20px', 'marginLeft':
    '5px'}),
                                      html.Label('%'),
