@@ -12,7 +12,6 @@
   }
 
   .printable-content {
-    page-break-before: always;
     margin: 20px;
     padding: 20px;
     //box-sizing: border-box; 

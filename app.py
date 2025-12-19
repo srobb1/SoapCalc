@@ -1304,6 +1304,14 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
       return  html.Div([
           html.Div(id='print-trigger', style={'display': 'none'}),
           html.Br(className="no-print"),
+          html.Div([
+            dcc.Checklist(
+              id='print-compliance-toggle',
+              options=[{'label': ' Include compliance report in print', 'value': 1}],
+              value=[],
+              style={'fontSize': '12px', 'padding': '10px 0'}
+            ),
+          ], className="no-print"),
           html.Br(className="no-print"),
           html.Div(id="your-recipe", className="printable-content", children=[
       
@@ -1321,7 +1329,7 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
           dbc.Row([
             dbc.Col([
               compliance_report,
-            ],width=12, style={'marginBottom': '4px'}, className="no-print")
+            ],width=12, style={'marginBottom': '4px'}, id='compliance-report-row')
           ]),
           
           dbc.Row([
@@ -1653,6 +1661,18 @@ def show_print_button(results):
     if results and results != html.Div():
         return {'display': 'block'}
     return {'display': 'none'}
+
+
+# Callback to toggle compliance report print visibility
+@app.callback(
+    Output('compliance-report-row', 'className'),
+    Input('print-compliance-toggle', 'value')
+)
+def toggle_compliance_print(toggle_value):
+    """Add/remove no-print class based on toggle"""
+    if toggle_value and 1 in toggle_value:
+        return ''  # Remove no-print class so it prints
+    return 'no-print'  # Add no-print class to hide from print
 
 
 if __name__ == '__main__':
