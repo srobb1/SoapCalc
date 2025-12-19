@@ -1314,14 +1314,14 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
           ]),
           dbc.Row([
             dbc.Col([
-              html.Div(recipe_notes, style={'whiteSpace': 'pre-wrap', 'fontSize': '10px', 'marginBottom': '4px'}),
+              html.Div(recipe_notes, style={'whiteSpace': 'pre-wrap', 'fontSize': '14px', 'marginBottom': '4px'}),
            ],width=12)
           ]),
           
           dbc.Row([
             dbc.Col([
               compliance_report,
-            ],width=12, style={'marginBottom': '4px'})
+            ],width=12, style={'marginBottom': '4px'}, className="no-print")
           ]),
           
           dbc.Row([

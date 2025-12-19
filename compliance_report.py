@@ -115,10 +115,11 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
     # 7. Trace accelerant (stearic acid, soap, eugenol)
     trace_accelerants = ['stearic acid', 'soap', 'eugenol']
     
-    # Check additives table
+    # Check additives table - look in both Additive name and Value
     has_accelerant = any(
-        any(acc.lower() in str(row.get('Value', '')).lower() for acc in trace_accelerants)
+        any(acc.lower() in str(row.get('Additive', '')).lower() or acc.lower() in str(row.get('Value', '')).lower() for acc in trace_accelerants)
         for row in (additives_data or [])
+        if row.get('Value') and str(row.get('Value')).strip() not in ['', 'Add to oil list', 'See LyeType', 'Dissolve in lye or add directly', 'Heat-sensitive - add room temp or after cook', 'Heat-sensitive - may cause caramelization', 'Add room temperature or slightly warmed', 'Add room temperature or warmed', 'WARM before adding to HTHP', 'Add room temperature', 'Add to oils at beginning', 'Add to lye solution']
     )
     
     # Also check if stearic acid is in recipe oils
@@ -206,10 +207,9 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
     # Create compliance dataframe
     compliance_df = pd.DataFrame(compliance_results)
     
-    # Split results into three parts
-    left_results = compliance_results[:4]      # 1-4
-    middle_results = compliance_results[4:8]   # 5-8
-    right_results = compliance_results[8:]     # 9-11
+    # Split results into two parts (6 items, then 5 items)
+    left_results = compliance_results[:6]      # 1-6
+    right_results = compliance_results[6:]     # 7-11
     
     # Create table with conditional styling
     pass_count = sum(1 for r in compliance_results if r['Pass'])
@@ -236,8 +236,8 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
             ],
             cell_selectable=False,
             style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-            style_cell={'textAlign': 'left', 'padding': '2px', 'fontSize': '8px'},
-            style_header={'backgroundColor': '#e8f4f8', 'fontWeight': 'bold', 'border': '1px solid #ccc', 'padding': '2px', 'fontSize': '7px'},
+            style_cell={'textAlign': 'left', 'padding': '10px', 'fontSize': '13px'},
+            style_header={'backgroundColor': '#fafafa', 'fontWeight': 'bold', 'paddingLeft': '10px', 'fontSize': '13px'},
             style_data_conditional=[
                 {
                     'if': {'column_id': 'Status', 'filter_query': '{Status} contains "✓"'},
@@ -262,12 +262,9 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
         dbc.Row([
             dbc.Col([
                 create_compliance_table(left_results, 'compliance-table-left')
-            ], width=4, style={'paddingRight': '1px'}),
-            dbc.Col([
-                create_compliance_table(middle_results, 'compliance-table-middle')
-            ], width=4, style={'paddingRight': '1px', 'paddingLeft': '1px'}),
+            ], width=6, style={'paddingRight': '1px'}),
             dbc.Col([
                 create_compliance_table(right_results, 'compliance-table-right')
-            ], width=4, style={'paddingLeft': '1px'})
+            ], width=6, style={'paddingLeft': '1px'})
         ], style={'marginBottom': '6px'})
     ])

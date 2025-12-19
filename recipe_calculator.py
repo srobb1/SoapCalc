@@ -518,3 +518,82 @@ def create_fats_table(fats):
         style_cell={'textAlign': 'left', 'padding': '5px', 'text-size': '12px'},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
     )
+
+
+def create_htfhp_instructions(additives_data):
+    """Create High Temperature Hot Process soap making instructions"""
+    
+    instructions = [
+        html.H5("🔥 HTFHP Instructions", style={'marginTop': '8px', 'marginBottom': '6px', 'fontSize': '13px'}),
+        html.Div([
+            html.Ol([
+                html.Li("Heat oils to 215°F. Add lye solution and blend continuously (3-5 min).", style={'fontSize': '11px', 'marginBottom': '2px'}),
+                html.Li("Watch for trace → expansion → gel stage (looks like baby food).", style={'fontSize': '11px', 'marginBottom': '2px'}),
+                html.Li("If expansion rises, stir down and resume mixing. Cover 2-3 min to finish.", style={'fontSize': '11px', 'marginBottom': '2px'}),
+            ], style={'lineHeight': '1.4', 'marginBottom': '4px'})
+        ]),
+    ]
+    
+    # Add additive timing if additives are present
+    additive_notes = []
+    post_cook_additives = []
+    
+    if additives_data:
+        # Handle both list of dicts (from form) and dict (from callback)
+        items = additives_data.items() if isinstance(additives_data, dict) else additives_data
+        
+        for item in items:
+            if isinstance(additives_data, dict):
+                additive_name, value = item
+            else:
+                # List of dicts from DataTable
+                additive_name = item.get('Category') or item.get('Additive', '')
+                value = convert_to_number(item.get('Amount', 0))
+            
+            if isinstance(value, (int, float)) and value > 0:
+                if 'Sodium Lactate' in additive_name:
+                    additive_notes.append(f"• {additive_name}: Add at thick trace (before expansion begins)")
+                elif any(x in additive_name for x in ['Sorbitol', 'Honey', 'Molasses', 'Sugar']):
+                    additive_notes.append(f"• {additive_name}: Mix into lye solution before combining with oils")
+                elif any(x in additive_name for x in ['Yogurt', 'Milk', 'Cream', 'Goat', 'Juice', 'Tofu']):
+                    post_cook_additives.append(additive_name)
+    
+        if post_cook_additives:
+            additive_notes.append(f"• {', '.join(post_cook_additives)}: Add after saponification is complete (post-cook). Use warmed or room-temperature additive and blend gently with spatula.")
+        
+        if additive_notes:
+            instructions.append(
+                html.Div([
+                    html.Strong("Additive Timing:", style={'fontSize': '12px'}),
+                    html.Ul([html.Li(note, style={'fontSize': '12px'}) for note in additive_notes], 
+                            style={'marginTop': '4px', 'marginBottom': '0px'})
+                ], style={'marginTop': '8px'})
+            )
+    
+    instructions.extend([
+        html.Div([
+            html.Strong("Post-Cook Steps:", style={'fontSize': '12px'}),
+            html.Ul([
+                html.Li("Test pH with zap test or pH solution to confirm saponification is complete.", style={'fontSize': '12px'}),
+                html.Li("Add warmed post-cook superfat, blend gently, cover for 1-2 minutes.", style={'fontSize': '12px'}),
+                html.Li("Add fragrance oil and mix thoroughly.", style={'fontSize': '12px'}),
+                html.Li("Divide into containers and add colorants/other room-temperature additives. Use warm tools if needed for mixing.", style={'fontSize': '12px'}),
+            ], style={'marginTop': '4px', 'marginBottom': '0px'})
+        ], style={'marginTop': '8px'}),
+        html.Div([
+            html.Strong("Molding & Setting:", style={'fontSize': '12px'}),
+            html.Ul([
+                html.Li("Fill mold and tap firmly on counter to remove air pockets. Cover and place in freezer or refrigerator for several hours if possible.", style={'fontSize': '12px'}),
+                html.Li("Cutting time varies by recipe: pure coconut oil recipes (~30 min), others up to 24 hours.", style={'fontSize': '12px'}),
+                html.Li("Soap is fully saponified and ready to use immediately after unmolding. Cure 4-6 weeks for harder bars.", style={'fontSize': '12px'}),
+            ], style={'marginTop': '4px', 'marginBottom': '0px'})
+        ], style={'marginTop': '8px'})
+    ])
+    
+    return html.Div(instructions, style={
+        'border': '1px solid #ddd', 
+        'padding': '10px', 
+        'backgroundColor': '#f9f9f9',
+        'borderRadius': '4px',
+        'fontSize': '12px'
+    })
