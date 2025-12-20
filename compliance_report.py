@@ -159,7 +159,8 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
         additive_name = str(row.get('Additive', '')).lower()
         if 'sodium lactate' in additive_name or 'sodium chloride' in additive_name or 'salt' in additive_name:
             salt_value = convert_to_number(row.get('Value', 0))
-            break
+            if salt_value > 0:
+                break
     has_salt = salt_value is not None and salt_value > 0
     salt_pass = (0.5 <= salt_value <= 4) if has_salt else False
     compliance_results.append({
@@ -170,13 +171,14 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
         'Pass': salt_pass
     })
     
-    # 10. Sugar (1-5% TOW) - includes sugar, honey, sorbitol
+    # 10. Sugar (1-5% TOW) - includes sugar, honey, sorbitol, molasses
     sugar_value = None
     for row in (additives_data or []):
         additive_name = str(row.get('Additive', '')).lower()
-        if 'sugar' in additive_name or 'honey' in additive_name or 'sorbitol' in additive_name:
+        if 'sugar' in additive_name or 'honey' in additive_name or 'sorbitol' in additive_name or 'molasses' in additive_name:
             sugar_value = convert_to_number(row.get('Value', 0))
-            break
+            if sugar_value > 0:
+                break
     has_sugar = sugar_value is not None and sugar_value > 0
     sugar_pass = (1 <= sugar_value <= 5) if has_sugar else False
     compliance_results.append({
