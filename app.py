@@ -506,6 +506,23 @@ app.layout = html.Div([html.Div([html.Div([
      dbc.Modal([
          dbc.ModalHeader(dbc.ModalTitle("Oil Properties Browser")),
          dbc.ModalBody([
+             dbc.Row([
+                 dbc.Col([
+                     html.Label(html.Strong('Compare Oils:'), style={'marginBottom': '8px'}),
+                     dcc.Dropdown(
+                         id='oil-properties-compare-oils',
+                         multi=True,
+                         placeholder='Select oils to compare...',
+                         style={'width': '100%'}
+                     )
+                 ], width=12)
+             ]),
+             html.Br(),
+             html.Div(id='oil-properties-compare-results'),
+             html.Br(),
+             html.Label(html.Strong('Or filter by properties:'), style={'marginBottom': '8px'}),
+
+
              html.Div([
                  dbc.Row([
                      dbc.Col([
@@ -1810,6 +1827,74 @@ def toggle_compliance_print(toggle_value):
     if toggle_value and 1 in toggle_value:
         return ''  # Remove no-print class so it prints
     return 'no-print'  # Add no-print class to hide from print
+
+
+# Callback to populate oil comparison dropdown
+@app.callback(
+    Output('oil-properties-compare-oils', 'options'),
+    Input('oil-properties-modal', 'is_open')
+)
+def populate_oil_dropdown(is_open):
+    """Populate the oil selection dropdown"""
+    if is_open:
+        return [{'label': oil, 'value': oil} for oil in oil_prop_df.index]
+    return []
+
+
+# Callback to display comparison results
+@app.callback(
+    Output('oil-properties-compare-results', 'children'),
+    Input('oil-properties-compare-oils', 'value')
+)
+def display_oil_comparison(selected_oils):
+    """Display comparison table for selected oils"""
+    if not selected_oils or len(selected_oils) == 0:
+        return html.Div()
+
+    # Merge oil properties with fat data
+    merged_df = oil_prop_df.merge(oil_fat_df, left_index=True, right_index=True, how='left')
+
+    # Filter to selected oils
+    comparison_df = merged_df.loc[selected_oils]
+
+    comparison_table = dash_table.DataTable(
+        data=comparison_df.reset_index().to_dict('records'),
+        columns=[
+            {'name': 'Oil', 'id': 'Oil'},
+            {'name': 'Cleansing', 'id': 'Cleansing'},
+            {'name': 'Hardness', 'id': 'Hardness'},
+            {'name': 'Condition', 'id': 'Condition'},
+            {'name': 'Bubbly', 'id': 'Bubbly'},
+            {'name': 'Creamy', 'id': 'Creamy'},
+            {'name': 'Iodine', 'id': 'Iodine'},
+            {'name': 'INS', 'id': 'INS'},
+            {'name': 'Lauric', 'id': 'Lauric'},
+            {'name': 'Myristic', 'id': 'Myristic'},
+            {'name': 'Palmitic', 'id': 'Palmitic'},
+            {'name': 'Stearic', 'id': 'Stearic'},
+            {'name': 'Oleic', 'id': 'Oleic'},
+            {'name': 'Linoleic', 'id': 'Linoleic'},
+            {'name': 'Linolenic', 'id': 'Linolenic'},
+            {'name': 'Ricinoleic', 'id': 'Ricinoleic'},
+        ],
+        sort_action="native",
+        style_header={
+            'fontSize': '13px',
+            'fontWeight': 'bold',
+            'paddingLeft': '10px',
+            'backgroundColor': '#fafafa',
+        },
+        style_cell={
+            'textAlign': 'left',
+            'paddingLeft': '10px',
+            'fontSize': '12px',
+        },
+        style_as_list_view=True,
+    )
+
+    return html.Div([
+        comparison_table
+    ])
 
 
 if __name__ == '__main__':

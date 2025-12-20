@@ -1,0 +1,20 @@
+Add this after dbc.ModalBody([ on line 508
+Replace the existing "html.Div(["  with the code below:
+
+             dbc.Row([
+                 dbc.Col([
+                     html.Label(html.Strong('Compare Oils:'), style={'marginBottom': '8px'}),
+                     dcc.Dropdown(
+                         id='oil-properties-compare-oils',
+                         multi=True,
+                         placeholder='Select oils to compare...',
+                         style={'width': '100%'}
+                     )
+                 ], width=12)
+             ]),
+             html.Br(),
+             html.Div(id='oil-properties-compare-results'),
+             html.Br(),
+             html.Label(html.Strong('Or filter by properties:'), style={'marginBottom': '8px'}),
+             html.Div([
+                 dbc.Row([
