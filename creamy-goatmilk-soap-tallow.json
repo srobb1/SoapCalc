@@ -4,36 +4,36 @@
             "Oil": "Castor oil",
             "NaOH SAP": 0.128,
             "KOH SAP": 0.18,
-            "Grams": 70.0,
-            "Ounces": 2.47,
-            "Percent": 14.0
+            "Grams": 75.0,
+            "Ounces": 2.65,
+            "Percent": 15.0
         },
         {
             "Oil": "Cocoa butter",
             "NaOH SAP": 0.138,
             "KOH SAP": 0.194,
-            "Grams": 165.0,
-            "Ounces": 5.82,
-            "Percent": 33.0
+            "Grams": 150.0,
+            "Ounces": 5.29,
+            "Percent": 30.0
         },
         {
             "Oil": "Coconut oil 76 degree",
             "NaOH SAP": 0.183,
             "KOH SAP": 0.257,
-            "Grams": 90.0,
-            "Ounces": 3.17,
-            "Percent": 18.0
+            "Grams": 100.0,
+            "Ounces": 3.53,
+            "Percent": 20.0
         },
         {
-            "Oil": "Shea butter",
-            "NaOH SAP": 0.128,
-            "KOH SAP": 0.179,
+            "Oil": "Tallow beef",
+            "NaOH SAP": 0.143,
+            "KOH SAP": 0.2,
             "Grams": 175.0,
             "Ounces": 6.17,
             "Percent": 35.0
         }
     ],
-    "recipe_name": "Creamy Goatmilk soap",
+    "recipe_name": "Creamy Goatmilk Soap (Tallow)",
     "recipe_notes": "from ultimatehpsoap.com",
     "unit": "Grams",
     "lye_type": "NaOH",
@@ -46,7 +46,7 @@
     "water_lye_ratio_input": "2:1",
     "pcsf-selected-oils-data": [
         {
-            "PCSF Oil": "Olive Oil",
+            "PCSF Oil": "Shea Butter",
             "%TOW": 5.0,
             "Grams": 25,
             "Ounces": 0.88
@@ -200,18 +200,12 @@
     ],
     "other-ingredients-table": [
         {
-            "Ingredient": "",
+            "Ingredient": "Powdered GoatMilk",
             "Type": "Fixed",
-            "Amount": "",
-            "Unit": "",
-            "Notes": ""
-        },
-        {
-            "Ingredient": "",
-            "Type": "%TOW",
-            "Amount": "",
-            "Unit": "%",
-            "Notes": ""
+            "Amount": "1",
+            "Unit": "TB",
+            "Notes": "Mix with water and add after cook. the water will be the goat milk amount in the additives section",
+            "CalculatedAmount": "1 TB"
         }
     ]
 }

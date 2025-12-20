@@ -1,0 +1,211 @@
+{
+    "selected_oils": [
+        {
+            "Oil": "Castor oil",
+            "NaOH SAP": 0.128,
+            "KOH SAP": 0.18,
+            "Grams": 75.0,
+            "Ounces": 2.65,
+            "Percent": 15.0
+        },
+        {
+            "Oil": "Cocoa butter",
+            "NaOH SAP": 0.138,
+            "KOH SAP": 0.194,
+            "Grams": 150.0,
+            "Ounces": 5.29,
+            "Percent": 30.0
+        },
+        {
+            "Oil": "Coconut oil 76 degree",
+            "NaOH SAP": 0.183,
+            "KOH SAP": 0.257,
+            "Grams": 100.0,
+            "Ounces": 3.53,
+            "Percent": 20.0
+        },
+        {
+            "Oil": "Shea butter",
+            "NaOH SAP": 0.128,
+            "KOH SAP": 0.179,
+            "Grams": 175.0,
+            "Ounces": 6.17,
+            "Percent": 35.0
+        }
+    ],
+    "recipe_name": "Creamy Goatmilk Soap (Shea)",
+    "recipe_notes": "from ultimatehpsoap.com",
+    "unit": "Grams",
+    "lye_type": "NaOH",
+    "lye_discount": 5,
+    "method_calculation": "By_Percent",
+    "total_weight": 500,
+    "water_calculation": "water_by_oil",
+    "water_by_oil_input": 38,
+    "water_by_lye_input": 33,
+    "water_lye_ratio_input": "2:1",
+    "pcsf-selected-oils-data": [
+        {
+            "PCSF Oil": "Olive Oil",
+            "%TOW": 5.0,
+            "Grams": 25,
+            "Ounces": 0.88
+        }
+    ],
+    "additives-table": [
+        {
+            "section": "Trace Accelerants",
+            "Additive": "Stearic Acid (5-8% TOW)",
+            "Value": "Add to oil list",
+            "Placeholder": null
+        },
+        {
+            "section": "Trace Accelerants",
+            "Additive": "Lauric Acid (5-8% TOW)",
+            "Value": "Add to oil list",
+            "Placeholder": null
+        },
+        {
+            "section": "Trace Accelerants",
+            "Additive": "Myristic Acid (5-8% TOW)",
+            "Value": "Add to oil list",
+            "Placeholder": null
+        },
+        {
+            "section": "Trace Accelerants",
+            "Additive": "Finished Soap (0.05-1% TOW)",
+            "Value": "1",
+            "Placeholder": null
+        },
+        {
+            "section": "Trace Accelerants",
+            "Additive": "Eugenol (drops)",
+            "Value": "5",
+            "Placeholder": "drops"
+        },
+        {
+            "section": "Humectants and Hardeners",
+            "Additive": "Sodium Lactate (3-4% TOW)",
+            "Value": "4",
+            "Placeholder": null
+        },
+        {
+            "section": "Humectants and Hardeners",
+            "Additive": "Sodium Chloride (0.5-1% TOW)",
+            "Value": "Dissolve in lye or add directly",
+            "Placeholder": null
+        },
+        {
+            "section": "Lather",
+            "Additive": "Castor Oil (5-15% TOW)",
+            "Value": "Add to oil list",
+            "Placeholder": null
+        },
+        {
+            "section": "Lather",
+            "Additive": "Jojoba Oil (5-10% TOW)",
+            "Value": "Add to oil list",
+            "Placeholder": null
+        },
+        {
+            "section": "Lather",
+            "Additive": "Dual Lye (5% KOH)",
+            "Value": "See LyeType",
+            "Placeholder": null
+        },
+        {
+            "section": "Lather",
+            "Additive": "Sorbitol (1-5% TOW)",
+            "Value": "4",
+            "Placeholder": null
+        },
+        {
+            "section": "Lather",
+            "Additive": "Cetyl Alcohol (1-3% TOW)",
+            "Value": "Add to oils at beginning",
+            "Placeholder": null
+        },
+        {
+            "section": "Lather",
+            "Additive": "Citric Acid (1-2% TOW)",
+            "Value": "Add to lye solution",
+            "Placeholder": null
+        },
+        {
+            "section": "Lather",
+            "Additive": "Honey (1-5% TOW)",
+            "Value": "Heat-sensitive - add room temp or after cook",
+            "Placeholder": null
+        },
+        {
+            "section": "Lather",
+            "Additive": "Molasses (1-5% TOW)",
+            "Value": "Heat-sensitive - may cause caramelization",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Yogurt (2-5% TOW)",
+            "Value": "4",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Milk - Dairy/Plant (2-5% TOW)",
+            "Value": "Add room temperature or slightly warmed",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Buttermilk (2-5% TOW)",
+            "Value": "Add room temperature or warmed",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Heavy Cream (2-5% TOW)",
+            "Value": "Add room temperature or warmed",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Goat Milk (2-5% TOW)",
+            "Value": "4",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Almond Milk (2-5% TOW)",
+            "Value": "Add room temperature or warmed",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Coconut Yogurt (2-5% TOW)",
+            "Value": "Add room temperature or warmed",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Juice/Fruit Puree (2-5% TOW)",
+            "Value": "WARM before adding to HTHP",
+            "Placeholder": null
+        },
+        {
+            "section": "Fluid Enhancer",
+            "Additive": "Tofu (2-5% TOW)",
+            "Value": "Add room temperature",
+            "Placeholder": null
+        }
+    ],
+    "other-ingredients-table": [
+        {
+            "Ingredient": "Powdered GoatMilk",
+            "Type": "Fixed",
+            "Amount": "1",
+            "Unit": "TB",
+            "Notes": "Mix with water and add after cook. the water will be the goat milk amount in the additives section",
+            "CalculatedAmount": "1 TB"
+        }
+    ]
+}
