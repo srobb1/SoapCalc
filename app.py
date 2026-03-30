@@ -5,8 +5,11 @@ import dash_ag_grid as dag
 import json
 import base64
 import io
+import logging
 import dash_bootstrap_components as dbc
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # conda activate soap-calc
 
@@ -26,10 +29,8 @@ saturated_fats = ("Lauric","Myristic","Palmitic","Stearic")
 unsaturated_fats = ("Oleic","Linoleic","Linolenic","Ricinoleic")
 
 dt_oil_columns = ['Oil', 'NaOH SAP', 'KOH SAP', 'Grams', 'Ounces', 'Percent']
-pcsf=("Argan Oil","Apricot Kernal Oil", "Coconut Oil","Olive Oil","Sweet Almond Oil","Cocoa Butter","Shea Butter","Jojoba Oil","Aloe Butter","Mango Button", "Kokum Butter","Grapeseed Oil")
-
 # Import additive data and calculator functions
-from additives_data import htfhp_additive_rowData, htfhp_tooltips, section_colors, section_descriptions
+from additives_data import htfhp_additive_rowData, htfhp_tooltips, section_colors, section_descriptions, pcsf_oils
 from recipe_calculator import (
     validate_recipe_inputs, 
     calculate_lye_requirements,
@@ -460,6 +461,47 @@ app.layout = html.Div([html.Div([html.Div([
                                      )
                                  ]), width=4
                              ),
+                         ]),
+                         html.Br(),
+                         dbc.Row([
+                             dbc.Col([
+                                 html.Div([
+                                     html.Label([
+                                         html.Span(html.Strong('Scale Multiplier:'), id='scale-multiplier-tooltip'),
+                                         dcc.Input(
+                                             id='scale-multiplier',
+                                             type='number',
+                                             value=1,
+                                             min=0.1,
+                                             step=0.1,
+                                             style={'width': '60px', 'height': '20px', 'marginLeft': '5px'}
+                                         ),
+                                         html.Label('x', style={'marginLeft': '4px'}),
+                                     ]),
+                                     dbc.Tooltip(
+                                         "Multiply all oil weights by this factor. Use 2 to double the batch, 0.5 to halve it.",
+                                         target="scale-multiplier-tooltip"
+                                     ),
+                                 ]),
+                             ], width=3),
+                             dbc.Col([
+                                 html.Div([
+                                     html.Label([
+                                         html.Span(html.Strong('Target Batch Weight:'), id='target-batch-tooltip'),
+                                         dcc.Input(
+                                             id='target-batch-weight',
+                                             type='number',
+                                             placeholder='e.g. 1000',
+                                             style={'width': '80px', 'height': '20px', 'marginLeft': '5px'}
+                                         ),
+                                         html.Label('g', style={'marginLeft': '4px'}),
+                                     ]),
+                                     dbc.Tooltip(
+                                         "Scale all oil weights so the total oil weight equals this value. Leave blank to use recipe weights as-is.",
+                                         target="target-batch-tooltip"
+                                     ),
+                                 ]),
+                             ], width=4),
                          ]),
                      ], style={"width": "100%"}),
                      title=html.Strong("Select Your Recipe Parameters"),
@@ -912,6 +954,7 @@ def update_other_ingredients_table(n_clicks_fixed, n_clicks_percent, contents, f
                 new_data = [row for row in new_data if any(row.values())]
                 return new_data
         except Exception as e:
+            logger.error('Error loading other ingredients from JSON: %s', e)
             return no_update
     elif trigger_id == 'add-row-button' and n_clicks_fixed:
         data.append({"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "CalculatedAmount": "", "Notes": ""})
@@ -1013,7 +1056,7 @@ def _update_dropdown_state(selected_items, stored_items, all_options):
 )
 def update_pcsf_dropdown(selected_oils, stored_selected_oils):
   """Update PCSF (Post Cook Superfat) dropdown options and maintain selection state"""
-  all_options = [{'label': i, 'value': i} for i in pcsf]
+  all_options = [{'label': i, 'value': i} for i in pcsf_oils]
   return _update_dropdown_state(selected_oils, stored_selected_oils, all_options)
 
 
@@ -1049,6 +1092,7 @@ def update_pcsf_table(selected_oils, timestamp, contents, oils_data, filename, d
                 new_data = recipe.get('pcsf-selected-oils-data', [])
                 return new_data, [{'name': 'PCSF Oil', 'id': 'PCSF Oil'}, {'name': '%TOW', 'id': '%TOW', 'editable': True}, {'name': 'Grams', 'id': 'Grams', 'editable': False}, {'name': 'Ounces', 'id': 'Ounces', 'editable': False}], [oil['PCSF Oil'] for oil in new_data]
         except Exception as e:
+            logger.error('Error loading PCSF oils from JSON: %s', e)
             return (no_update, no_update, no_update)
 
     if selected_oils is None:
@@ -1217,6 +1261,7 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
                         water_lye_ratio_input, #16
                       )
         except Exception as e:
+            logger.error('Error loading recipe from JSON: %s', e)
             return (no_update, no_update, no_update,  #3
                     f'There was an error uploading the recipe: {str(e)}',  #4
                     no_update, no_update, no_update, #7
@@ -1351,21 +1396,45 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
   State('pcsf-selected-oils-data', 'data'),
   State('additives-table', 'data'),
   State('other-ingredients-table', 'data'),
+  State('scale-multiplier', 'value'),
+  State('target-batch-weight', 'value'),
   prevent_initial_call=True
 )
-def generate_recipe_table(n_clicks, recipe_name, recipe_notes, data, lye_discount, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input, lye_type, pcsf_oil_data, additives_data, other_ingredients_data):
+def generate_recipe_table(n_clicks, recipe_name, recipe_notes, data, lye_discount, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input, lye_type, pcsf_oil_data, additives_data, other_ingredients_data, scale_multiplier, target_batch_weight):
    """Generate complete recipe table with all calculations and formatting"""
    # Validate inputs
    error = validate_recipe_inputs(recipe_name, data, pcsf_oil_data)
    if error:
         return error
+
+   if water_calculation == 'water_lye_ratio':
+        parts = (water_lye_ratio_input or '').split(':')
+        valid = len(parts) == 2 and all(p.strip().replace('.', '', 1).isdigit() for p in parts)
+        if not valid:
+            return html.Div('Water:Lye ratio must be in the format "2:1" (e.g. 2.5:1)', style={'color': 'red'})
  
    # Create other ingredients table (will be populated after calculating total weight)
    other_ingredient_recipe_table = None
 
    if n_clicks > 0 and data:
       lye_discount = float(lye_discount)
-      
+
+      # Apply scaling: target batch weight takes priority over multiplier
+      data = [row.copy() for row in data]
+      current_total = sum(float(row.get('Grams', 0)) for row in data)
+      if target_batch_weight and float(target_batch_weight) > 0 and current_total > 0:
+          scale = float(target_batch_weight) / current_total
+      elif scale_multiplier and float(scale_multiplier) != 1 and current_total > 0:
+          scale = float(scale_multiplier)
+      else:
+          scale = 1
+      if scale != 1:
+          for row in data:
+              row['Grams'] = round(float(row.get('Grams', 0)) * scale, 2)
+              row['Ounces'] = round(row['Grams'] / 28.3495, 2)
+              if current_total > 0:
+                  row['Percent'] = round(float(row.get('Grams', 0)) / (current_total * scale) * 100, 1)
+
       # Define property ranges
       ranges = {
         "Hardness": "29 - 54",
@@ -1527,10 +1596,10 @@ def update_additives_table(contents, filename, data):
                 return new_data
          
         except Exception as e:
-            return (no_update)
+            logger.error('Error loading additives from JSON: %s', e)
+            return no_update
 
-      else:
-            return (data)
+      return no_update
 
 
  
@@ -1814,7 +1883,7 @@ def search_oils(n_clicks, cleansing_range, hardness_range, condition_range, bubb
 )
 def show_print_button(results):
     """Show print button only when results exist"""
-    if results and results != html.Div():
+    if results is not None and results != '' and results != []:
         return {'display': 'block'}
     return {'display': 'none'}
 

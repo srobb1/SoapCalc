@@ -368,6 +368,11 @@ def create_additives_details(additives_data, pcsf_oil_data, total_oil_weight):
 def create_overview_table(total_oil_weight, water_weight_grams, lye_type, lye_discount, 
                           lye_adjusted, fat_props):
     """Create overview data table"""
+    total_fat = fat_props['saturated'] + fat_props['unsaturated']
+    sat_unsat = (
+        f"{round(fat_props['saturated'] / total_fat * 100)}:{round(fat_props['unsaturated'] / total_fat * 100)}"
+        if total_fat > 0 else "N/A"
+    )
     overview_data = {
         "Total Oil Weight": f"{total_oil_weight}g",
         "Water as percent of oil weight": f"{round((water_weight_grams / total_oil_weight) * 100)}%",
@@ -375,7 +380,7 @@ def create_overview_table(total_oil_weight, water_weight_grams, lye_type, lye_di
         "Lye Discount": f"{round(lye_discount)}%",
         "Lye Concentration": f"{round((lye_adjusted / (water_weight_grams + lye_adjusted)) * 100, 1)}%",
         "Water : Lye Ratio": f"{water_weight_grams / lye_adjusted:.1f}:1",
-        "Sat : Unsat Ratio": f"{round(fat_props['saturated']/(fat_props['saturated']+fat_props['unsaturated'])*100)}:{round(fat_props['unsaturated']/(fat_props['saturated']+fat_props['unsaturated'])*100)}",
+        "Sat : Unsat Ratio": sat_unsat,
         "": ""
     }
     

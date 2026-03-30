@@ -2,6 +2,13 @@
 Additive data and configuration for HTFHP soap making
 """
 
+# Post-cook superfat oils available for selection
+pcsf_oils = (
+    "Argan Oil", "Apricot Kernal Oil", "Coconut Oil", "Olive Oil",
+    "Sweet Almond Oil", "Cocoa Butter", "Shea Butter", "Jojoba Oil",
+    "Aloe Butter", "Mango Button", "Kokum Butter", "Grapeseed Oil"
+)
+
 # Initial data for the additives DataTable
 htfhp_additive_rowData = [
     {"section": "Trace Accelerants", "Additive": "Stearic Acid (5-8% TOW)", "Value": "Add to oil list"},

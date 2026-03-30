@@ -6,6 +6,7 @@ import pandas as pd
 from dash import dash_table, html
 import dash_bootstrap_components as dbc
 from recipe_calculator import convert_to_number
+from additives_data import pcsf_oils
 
 
 def create_compliance_report(selected_oils_data, total_oil_weight, water_weight, total_weight, 
@@ -131,9 +132,9 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
     })
     
     # 8. PCSF oil in recipe at 1-3% TOC + 3-6% TOW PCSF
+    pcsf_oil_names = [o.lower() for o in pcsf_oils]
     pcsf_in_recipe = any(
-        oil.get('Oil', '').lower() in ['argan oil', 'apricot kernel oil', 'coconut oil', 'olive oil', 
-                                        'sweet almond oil', 'cocoa butter', 'shea butter', 'jojoba oil']
+        oil.get('Oil', '').lower() in pcsf_oil_names
         for oil in selected_oils_data
     )
     pcsf_total = sum(convert_to_number(row.get('%TOW', 0)) for row in (pcsf_oil_data or []))
