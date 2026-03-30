@@ -8,6 +8,9 @@ import io
 import dash_bootstrap_components as dbc
 from pathlib import Path
 
+# conda activate soap-calc
+
+
 # Configuration - Data file paths
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / 'data'
@@ -23,7 +26,7 @@ saturated_fats = ("Lauric","Myristic","Palmitic","Stearic")
 unsaturated_fats = ("Oleic","Linoleic","Linolenic","Ricinoleic")
 
 dt_oil_columns = ['Oil', 'NaOH SAP', 'KOH SAP', 'Grams', 'Ounces', 'Percent']
-pcsf=("Argan Oil","Apricot Kernal Oil", "Coconut Oil","Olive Oil","Sweet Almond Oil","Cocoa Butter","Shea Butter","Jojoba Oil","Aloe Butter","Mango Button", "Kokum Butter")
+pcsf=("Argan Oil","Apricot Kernal Oil", "Coconut Oil","Olive Oil","Sweet Almond Oil","Cocoa Butter","Shea Butter","Jojoba Oil","Aloe Butter","Mango Button", "Kokum Butter","Grapeseed Oil")
 
 # Import additive data and calculator functions
 from additives_data import htfhp_additive_rowData, htfhp_tooltips, section_colors, section_descriptions
