@@ -463,45 +463,46 @@ app.layout = html.Div([html.Div([html.Div([
                              ),
                          ]),
                          html.Br(),
-                         dbc.Row([
-                             dbc.Col([
-                                 html.Div([
-                                     html.Label([
-                                         html.Span(html.Strong('Scale Multiplier:'), id='scale-multiplier-tooltip'),
-                                         dcc.Input(
-                                             id='scale-multiplier',
-                                             type='number',
-                                             value=1,
-                                             min=0.1,
-                                             step=0.1,
-                                             style={'width': '60px', 'height': '20px', 'marginLeft': '5px'}
-                                         ),
-                                         html.Label('x', style={'marginLeft': '4px'}),
-                                     ]),
-                                     dbc.Tooltip(
-                                         "Multiply all oil weights by this factor. Use 2 to double the batch, 0.5 to halve it.",
-                                         target="scale-multiplier-tooltip"
+                         html.Div(id='scale-recipe-section', children=[
+                             dbc.Row([
+                                 dbc.Col([
+                                     html.Label(html.Strong('Scale Recipe:'), style={'marginBottom': '6px'}),
+                                     html.P(
+                                         'Use either a multiplier or a target weight — not both. Target weight takes priority.',
+                                         style={'fontSize': '11px', 'color': '#888', 'marginBottom': '8px'}
                                      ),
-                                 ]),
-                             ], width=3),
-                             dbc.Col([
-                                 html.Div([
-                                     html.Label([
-                                         html.Span(html.Strong('Target Batch Weight:'), id='target-batch-tooltip'),
-                                         dcc.Input(
-                                             id='target-batch-weight',
-                                             type='number',
-                                             placeholder='e.g. 1000',
-                                             style={'width': '80px', 'height': '20px', 'marginLeft': '5px'}
+                                     html.Div([
+                                         html.Label([
+                                             html.Span('Multiplier:', id='scale-multiplier-tooltip', style={'marginRight': '5px'}),
+                                             dcc.Input(
+                                                 id='scale-multiplier',
+                                                 type='number',
+                                                 value=1,
+                                                 min=0.1,
+                                                 step=0.1,
+                                                 style={'width': '60px', 'height': '20px', 'marginRight': '4px'}
+                                             ),
+                                             html.Span('x', style={'marginRight': '20px'}),
+                                             html.Span('Target Oil Weight:', id='target-batch-tooltip', style={'marginRight': '5px'}),
+                                             dcc.Input(
+                                                 id='target-batch-weight',
+                                                 type='number',
+                                                 placeholder='e.g. 1000',
+                                                 style={'width': '80px', 'height': '20px', 'marginRight': '4px'}
+                                             ),
+                                             html.Span('g'),
+                                         ], style={'display': 'flex', 'alignItems': 'center'}),
+                                         dbc.Tooltip(
+                                             "Scales all oil weights by this factor. 2 = double the batch, 0.5 = half.",
+                                             target="scale-multiplier-tooltip"
                                          ),
-                                         html.Label('g', style={'marginLeft': '4px'}),
+                                         dbc.Tooltip(
+                                             "Scales all oil weights so their total equals this value. Overrides the multiplier.",
+                                             target="target-batch-tooltip"
+                                         ),
                                      ]),
-                                     dbc.Tooltip(
-                                         "Scale all oil weights so the total oil weight equals this value. Leave blank to use recipe weights as-is.",
-                                         target="target-batch-tooltip"
-                                     ),
-                                 ]),
-                             ], width=4),
+                                 ], width=9),
+                             ]),
                          ]),
                      ], style={"width": "100%"}),
                      title=html.Strong("Select Your Recipe Parameters"),
@@ -1149,6 +1150,16 @@ def show_hide_total_weight_input(method):
   else:
       return {'display': 'none'}
 
+@app.callback(
+    Output('scale-recipe-section', 'style'),
+    Input('method_calculation', 'value')
+)
+def show_hide_scale_section(method):
+    """Hide scale section when using By Percentage — Total Weight already controls batch size there"""
+    if method == 'By_Percent':
+        return {'display': 'none'}
+    return {'display': 'block'}
+
 # Callback to update the dropdown options based on the data in the dropdown and selected oils
 @app.callback(
   Output('selected-oils', 'options'),
@@ -1398,9 +1409,10 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
   State('other-ingredients-table', 'data'),
   State('scale-multiplier', 'value'),
   State('target-batch-weight', 'value'),
+  State('method_calculation', 'value'),
   prevent_initial_call=True
 )
-def generate_recipe_table(n_clicks, recipe_name, recipe_notes, data, lye_discount, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input, lye_type, pcsf_oil_data, additives_data, other_ingredients_data, scale_multiplier, target_batch_weight):
+def generate_recipe_table(n_clicks, recipe_name, recipe_notes, data, lye_discount, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input, lye_type, pcsf_oil_data, additives_data, other_ingredients_data, scale_multiplier, target_batch_weight, method_calculation):
    """Generate complete recipe table with all calculations and formatting"""
    # Validate inputs
    error = validate_recipe_inputs(recipe_name, data, pcsf_oil_data)
@@ -1419,21 +1431,22 @@ def generate_recipe_table(n_clicks, recipe_name, recipe_notes, data, lye_discoun
    if n_clicks > 0 and data:
       lye_discount = float(lye_discount)
 
-      # Apply scaling: target batch weight takes priority over multiplier
-      data = [row.copy() for row in data]
-      current_total = sum(float(row.get('Grams', 0)) for row in data)
-      if target_batch_weight and float(target_batch_weight) > 0 and current_total > 0:
-          scale = float(target_batch_weight) / current_total
-      elif scale_multiplier and float(scale_multiplier) != 1 and current_total > 0:
-          scale = float(scale_multiplier)
-      else:
-          scale = 1
-      if scale != 1:
-          for row in data:
-              row['Grams'] = round(float(row.get('Grams', 0)) * scale, 2)
-              row['Ounces'] = round(row['Grams'] / 28.3495, 2)
-              if current_total > 0:
-                  row['Percent'] = round(float(row.get('Grams', 0)) / (current_total * scale) * 100, 1)
+      # Apply scaling (By_Weight mode only — By_Percent uses Total Weight instead)
+      if method_calculation == 'By_Weight':
+          data = [row.copy() for row in data]
+          current_total = sum(float(row.get('Grams', 0)) for row in data)
+          if target_batch_weight and float(target_batch_weight) > 0 and current_total > 0:
+              scale = float(target_batch_weight) / current_total
+          elif scale_multiplier and float(scale_multiplier) != 1 and current_total > 0:
+              scale = float(scale_multiplier)
+          else:
+              scale = 1
+          if scale != 1:
+              for row in data:
+                  row['Grams'] = round(float(row.get('Grams', 0)) * scale, 2)
+                  row['Ounces'] = round(row['Grams'] / 28.3495, 2)
+                  if current_total > 0:
+                      row['Percent'] = round(float(row.get('Grams', 0)) / (current_total * scale) * 100, 1)
 
       # Define property ranges
       ranges = {
