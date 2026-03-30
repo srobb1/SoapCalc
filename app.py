@@ -38,7 +38,24 @@ merged_oil_df['Unsaturated%'] = (
     merged_oil_df['Linolenic'] + merged_oil_df['Ricinoleic']
 ).round(0).astype(int)
 
-# Pre-compute slider max values from actual data
+# Pre-compute slider min/max from actual data
+SLIDER_MIN = {
+    'Hardness':    int(oil_prop_df['Hardness'].min()),
+    'Cleansing':   int(oil_prop_df['Cleansing'].min()),
+    'Condition':   int(oil_prop_df['Condition'].min()),
+    'Bubbly':      int(oil_prop_df['Bubbly'].min()),
+    'Creamy':      int(oil_prop_df['Creamy'].min()),
+    'Lauric':      int(oil_fat_df['Lauric'].min()),
+    'Myristic':    int(oil_fat_df['Myristic'].min()),
+    'Palmitic':    int(oil_fat_df['Palmitic'].min()),
+    'Stearic':     int(oil_fat_df['Stearic'].min()),
+    'Oleic':       int(oil_fat_df['Oleic'].min()),
+    'Linoleic':    int(oil_fat_df['Linoleic'].min()),
+    'Linolenic':   int(oil_fat_df['Linolenic'].min()),
+    'Ricinoleic':  int(oil_fat_df['Ricinoleic'].min()),
+    'Saturated%':  int(merged_oil_df['Saturated%'].min()),
+    'Unsaturated%':int(merged_oil_df['Unsaturated%'].min()),
+}
 SLIDER_MAX = {
     'Hardness':    int(oil_prop_df['Hardness'].max()),
     'Cleansing':   int(oil_prop_df['Cleansing'].max()),
@@ -192,6 +209,8 @@ oil_properties_columns = [
     {'name': 'Linoleic', 'id': 'Linoleic'},
     {'name': 'Linolenic', 'id': 'Linolenic'},
     {'name': 'Ricinoleic', 'id': 'Ricinoleic'},
+    {'name': 'Saturated%', 'id': 'Saturated%'},
+    {'name': 'Unsaturated%', 'id': 'Unsaturated%'},
 ]
 
 other_ingredient_initial_rows = [
@@ -632,23 +651,23 @@ app.layout = html.Div([html.Div([html.Div([
              dbc.Row([
                  dbc.Col([
                      html.Label('Hardness:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='hardness-filter', min=0, max=SLIDER_MAX['Hardness'], step=1,
-                         value=[0, SLIDER_MAX['Hardness']],
-                         marks={i: str(i) for i in range(0, SLIDER_MAX['Hardness'] + 1, 10)},
+                     dcc.RangeSlider(id='hardness-filter', min=SLIDER_MIN['Hardness'], max=SLIDER_MAX['Hardness'], step=1,
+                         value=[SLIDER_MIN['Hardness'], SLIDER_MAX['Hardness']],
+                         marks={i: str(i) for i in range(SLIDER_MIN['Hardness'], SLIDER_MAX['Hardness'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=4),
                  dbc.Col([
                      html.Label('Cleansing:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='cleansing-filter', min=0, max=SLIDER_MAX['Cleansing'], step=1,
-                         value=[0, SLIDER_MAX['Cleansing']],
-                         marks={i: str(i) for i in range(0, SLIDER_MAX['Cleansing'] + 1, 10)},
+                     dcc.RangeSlider(id='cleansing-filter', min=SLIDER_MIN['Cleansing'], max=SLIDER_MAX['Cleansing'], step=1,
+                         value=[SLIDER_MIN['Cleansing'], SLIDER_MAX['Cleansing']],
+                         marks={i: str(i) for i in range(SLIDER_MIN['Cleansing'], SLIDER_MAX['Cleansing'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=4),
                  dbc.Col([
                      html.Label('Condition:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='condition-filter', min=0, max=SLIDER_MAX['Condition'], step=1,
-                         value=[0, SLIDER_MAX['Condition']],
-                         marks={i: str(i) for i in range(0, SLIDER_MAX['Condition'] + 1, 10)},
+                     dcc.RangeSlider(id='condition-filter', min=SLIDER_MIN['Condition'], max=SLIDER_MAX['Condition'], step=1,
+                         value=[SLIDER_MIN['Condition'], SLIDER_MAX['Condition']],
+                         marks={i: str(i) for i in range(SLIDER_MIN['Condition'], SLIDER_MAX['Condition'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=4),
              ]),
@@ -656,16 +675,16 @@ app.layout = html.Div([html.Div([html.Div([
              dbc.Row([
                  dbc.Col([
                      html.Label('Bubbly:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='bubbly-filter', min=0, max=SLIDER_MAX['Bubbly'], step=1,
-                         value=[0, SLIDER_MAX['Bubbly']],
-                         marks={i: str(i) for i in range(0, SLIDER_MAX['Bubbly'] + 1, 10)},
+                     dcc.RangeSlider(id='bubbly-filter', min=SLIDER_MIN['Bubbly'], max=SLIDER_MAX['Bubbly'], step=1,
+                         value=[SLIDER_MIN['Bubbly'], SLIDER_MAX['Bubbly']],
+                         marks={i: str(i) for i in range(SLIDER_MIN['Bubbly'], SLIDER_MAX['Bubbly'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=4),
                  dbc.Col([
                      html.Label('Creamy:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='creamy-filter', min=0, max=SLIDER_MAX['Creamy'], step=1,
-                         value=[0, SLIDER_MAX['Creamy']],
-                         marks={i: str(i) for i in range(0, SLIDER_MAX['Creamy'] + 1, 10)},
+                     dcc.RangeSlider(id='creamy-filter', min=SLIDER_MIN['Creamy'], max=SLIDER_MAX['Creamy'], step=1,
+                         value=[SLIDER_MIN['Creamy'], SLIDER_MAX['Creamy']],
+                         marks={i: str(i) for i in range(SLIDER_MIN['Creamy'], SLIDER_MAX['Creamy'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=4),
              ]),
@@ -675,60 +694,60 @@ app.layout = html.Div([html.Div([html.Div([
              dbc.Row([
                  dbc.Col([
                      html.Label('Lauric:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='lauric-filter', min=0, max=SLIDER_MAX['Lauric'], step=1,
-                         value=[0, SLIDER_MAX['Lauric']],
-                         marks={i: '' for i in range(0, SLIDER_MAX['Lauric'] + 1, 10)},
+                     dcc.RangeSlider(id='lauric-filter', min=SLIDER_MIN['Lauric'], max=SLIDER_MAX['Lauric'], step=1,
+                         value=[SLIDER_MIN['Lauric'], SLIDER_MAX['Lauric']],
+                         marks={i: '' for i in range(SLIDER_MIN['Lauric'], SLIDER_MAX['Lauric'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
                  dbc.Col([
                      html.Label('Myristic:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='myristic-filter', min=0, max=SLIDER_MAX['Myristic'], step=1,
-                         value=[0, SLIDER_MAX['Myristic']],
-                         marks={i: '' for i in range(0, SLIDER_MAX['Myristic'] + 1, 10)},
+                     dcc.RangeSlider(id='myristic-filter', min=SLIDER_MIN['Myristic'], max=SLIDER_MAX['Myristic'], step=1,
+                         value=[SLIDER_MIN['Myristic'], SLIDER_MAX['Myristic']],
+                         marks={i: '' for i in range(SLIDER_MIN['Myristic'], SLIDER_MAX['Myristic'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
                  dbc.Col([
                      html.Label('Palmitic:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='palmitic-filter', min=0, max=SLIDER_MAX['Palmitic'], step=1,
-                         value=[0, SLIDER_MAX['Palmitic']],
-                         marks={i: '' for i in range(0, SLIDER_MAX['Palmitic'] + 1, 10)},
+                     dcc.RangeSlider(id='palmitic-filter', min=SLIDER_MIN['Palmitic'], max=SLIDER_MAX['Palmitic'], step=1,
+                         value=[SLIDER_MIN['Palmitic'], SLIDER_MAX['Palmitic']],
+                         marks={i: '' for i in range(SLIDER_MIN['Palmitic'], SLIDER_MAX['Palmitic'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
                  dbc.Col([
                      html.Label('Stearic:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='stearic-filter', min=0, max=SLIDER_MAX['Stearic'], step=1,
-                         value=[0, SLIDER_MAX['Stearic']],
-                         marks={i: '' for i in range(0, SLIDER_MAX['Stearic'] + 1, 10)},
+                     dcc.RangeSlider(id='stearic-filter', min=SLIDER_MIN['Stearic'], max=SLIDER_MAX['Stearic'], step=1,
+                         value=[SLIDER_MIN['Stearic'], SLIDER_MAX['Stearic']],
+                         marks={i: '' for i in range(SLIDER_MIN['Stearic'], SLIDER_MAX['Stearic'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
                  dbc.Col([
                      html.Label('Oleic:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='oleic-filter', min=0, max=SLIDER_MAX['Oleic'], step=1,
-                         value=[0, SLIDER_MAX['Oleic']],
-                         marks={i: '' for i in range(0, SLIDER_MAX['Oleic'] + 1, 15)},
+                     dcc.RangeSlider(id='oleic-filter', min=SLIDER_MIN['Oleic'], max=SLIDER_MAX['Oleic'], step=1,
+                         value=[SLIDER_MIN['Oleic'], SLIDER_MAX['Oleic']],
+                         marks={i: '' for i in range(SLIDER_MIN['Oleic'], SLIDER_MAX['Oleic'] + 1, 15)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
                  dbc.Col([
                      html.Label('Linoleic:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='linoleic-filter', min=0, max=SLIDER_MAX['Linoleic'], step=1,
-                         value=[0, SLIDER_MAX['Linoleic']],
-                         marks={i: '' for i in range(0, SLIDER_MAX['Linoleic'] + 1, 15)},
+                     dcc.RangeSlider(id='linoleic-filter', min=SLIDER_MIN['Linoleic'], max=SLIDER_MAX['Linoleic'], step=1,
+                         value=[SLIDER_MIN['Linoleic'], SLIDER_MAX['Linoleic']],
+                         marks={i: '' for i in range(SLIDER_MIN['Linoleic'], SLIDER_MAX['Linoleic'] + 1, 15)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
              ]),
              dbc.Row([
                  dbc.Col([
                      html.Label('Linolenic:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='linolenic-filter', min=0, max=SLIDER_MAX['Linolenic'], step=1,
-                         value=[0, SLIDER_MAX['Linolenic']],
-                         marks={i: '' for i in range(0, SLIDER_MAX['Linolenic'] + 1, 15)},
+                     dcc.RangeSlider(id='linolenic-filter', min=SLIDER_MIN['Linolenic'], max=SLIDER_MAX['Linolenic'], step=1,
+                         value=[SLIDER_MIN['Linolenic'], SLIDER_MAX['Linolenic']],
+                         marks={i: '' for i in range(SLIDER_MIN['Linolenic'], SLIDER_MAX['Linolenic'] + 1, 15)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
                  dbc.Col([
                      html.Label('Ricinoleic:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='ricinoleic-filter', min=0, max=SLIDER_MAX['Ricinoleic'], step=1,
-                         value=[0, SLIDER_MAX['Ricinoleic']],
-                         marks={i: '' for i in range(0, SLIDER_MAX['Ricinoleic'] + 1, 15)},
+                     dcc.RangeSlider(id='ricinoleic-filter', min=SLIDER_MIN['Ricinoleic'], max=SLIDER_MAX['Ricinoleic'], step=1,
+                         value=[SLIDER_MIN['Ricinoleic'], SLIDER_MAX['Ricinoleic']],
+                         marks={i: '' for i in range(SLIDER_MIN['Ricinoleic'], SLIDER_MAX['Ricinoleic'] + 1, 15)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
              ]),
@@ -738,16 +757,16 @@ app.layout = html.Div([html.Div([html.Div([
              dbc.Row([
                  dbc.Col([
                      html.Label('Total Saturated %:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='saturated-filter', min=0, max=SLIDER_MAX['Saturated%'], step=1,
-                         value=[0, SLIDER_MAX['Saturated%']],
-                         marks={i: str(i) for i in range(0, SLIDER_MAX['Saturated%'] + 1, 10)},
+                     dcc.RangeSlider(id='saturated-filter', min=SLIDER_MIN['Saturated%'], max=SLIDER_MAX['Saturated%'], step=1,
+                         value=[SLIDER_MIN['Saturated%'], SLIDER_MAX['Saturated%']],
+                         marks={i: str(i) for i in range(SLIDER_MIN['Saturated%'], SLIDER_MAX['Saturated%'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=4),
                  dbc.Col([
                      html.Label('Total Unsaturated %:', style={'fontSize': '12px'}),
-                     dcc.RangeSlider(id='unsaturated-filter', min=0, max=SLIDER_MAX['Unsaturated%'], step=1,
-                         value=[0, SLIDER_MAX['Unsaturated%']],
-                         marks={i: str(i) for i in range(0, SLIDER_MAX['Unsaturated%'] + 1, 10)},
+                     dcc.RangeSlider(id='unsaturated-filter', min=SLIDER_MIN['Unsaturated%'], max=SLIDER_MAX['Unsaturated%'], step=1,
+                         value=[SLIDER_MIN['Unsaturated%'], SLIDER_MAX['Unsaturated%']],
+                         marks={i: str(i) for i in range(SLIDER_MIN['Unsaturated%'], SLIDER_MAX['Unsaturated%'] + 1, 10)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=4),
              ]),
@@ -1857,8 +1876,11 @@ def search_oils(is_open, hardness_range, cleansing_range, condition_range, bubbl
         row_selectable='multi',
         selected_rows=[],
         sort_action='native',
-        style_header={'fontSize': '13px', 'fontWeight': 'bold', 'paddingLeft': '10px', 'backgroundColor': '#fafafa', 'cursor': 'pointer'},
-        style_cell={'textAlign': 'left', 'paddingLeft': '10px', 'fontSize': '12px'},
+        fixed_rows={'headers': True},
+        style_table={'overflowX': 'auto', 'overflowY': 'auto', 'maxHeight': '350px'},
+        style_header={'fontSize': '12px', 'fontWeight': 'bold', 'backgroundColor': '#fafafa', 'cursor': 'pointer'},
+        style_cell={'textAlign': 'center', 'padding': '4px 8px', 'fontSize': '11px', 'minWidth': '60px'},
+        style_cell_conditional=[{'if': {'column_id': 'Oil'}, 'textAlign': 'left', 'minWidth': '140px'}],
         style_as_list_view=True,
     )
 
@@ -1913,8 +1935,11 @@ def display_oil_comparison(selected_oils):
             data=comparison_df.to_dict('records'),
             columns=oil_properties_columns,
             sort_action='native',
-            style_header={'fontSize': '13px', 'fontWeight': 'bold', 'paddingLeft': '10px', 'backgroundColor': '#fafafa'},
-            style_cell={'textAlign': 'left', 'paddingLeft': '10px', 'fontSize': '12px'},
+            fixed_rows={'headers': True},
+            style_table={'overflowX': 'auto', 'overflowY': 'auto', 'maxHeight': '250px'},
+            style_header={'fontSize': '12px', 'fontWeight': 'bold', 'backgroundColor': '#fafafa'},
+            style_cell={'textAlign': 'center', 'padding': '4px 8px', 'fontSize': '11px', 'minWidth': '60px'},
+            style_cell_conditional=[{'if': {'column_id': 'Oil'}, 'textAlign': 'left', 'minWidth': '140px'}],
             style_as_list_view=True,
         ),
         html.Br(),
@@ -1942,23 +1967,11 @@ def display_oil_comparison(selected_oils):
 )
 def reset_filters(n_clicks):
     """Reset all sliders to their full range"""
-    return (
-        [0, SLIDER_MAX['Hardness']],
-        [0, SLIDER_MAX['Cleansing']],
-        [0, SLIDER_MAX['Condition']],
-        [0, SLIDER_MAX['Bubbly']],
-        [0, SLIDER_MAX['Creamy']],
-        [0, SLIDER_MAX['Lauric']],
-        [0, SLIDER_MAX['Myristic']],
-        [0, SLIDER_MAX['Palmitic']],
-        [0, SLIDER_MAX['Stearic']],
-        [0, SLIDER_MAX['Oleic']],
-        [0, SLIDER_MAX['Linoleic']],
-        [0, SLIDER_MAX['Linolenic']],
-        [0, SLIDER_MAX['Ricinoleic']],
-        [0, SLIDER_MAX['Saturated%']],
-        [0, SLIDER_MAX['Unsaturated%']],
-    )
+    return tuple([SLIDER_MIN[k], SLIDER_MAX[k]] for k in [
+        'Hardness', 'Cleansing', 'Condition', 'Bubbly', 'Creamy',
+        'Lauric', 'Myristic', 'Palmitic', 'Stearic', 'Oleic',
+        'Linoleic', 'Linolenic', 'Ricinoleic', 'Saturated%', 'Unsaturated%',
+    ])
 
 
 @app.callback(
