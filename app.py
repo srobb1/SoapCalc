@@ -28,21 +28,33 @@ oil_fat_df = pd.read_csv(OIL_FATS_FILE, header=0, index_col=0, sep="\t")
 merged_oil_df = oil_prop_df.merge(oil_fat_df, left_index=True, right_index=True, how='left').reset_index()
 merged_oil_df = merged_oil_df.rename(columns={'index': 'Oil'}) if 'index' in merged_oil_df.columns else merged_oil_df
 
+# Add saturated/unsaturated percentage columns
+merged_oil_df['Saturated%'] = (
+    merged_oil_df['Lauric'] + merged_oil_df['Myristic'] +
+    merged_oil_df['Palmitic'] + merged_oil_df['Stearic']
+).round(0).astype(int)
+merged_oil_df['Unsaturated%'] = (
+    merged_oil_df['Oleic'] + merged_oil_df['Linoleic'] +
+    merged_oil_df['Linolenic'] + merged_oil_df['Ricinoleic']
+).round(0).astype(int)
+
 # Pre-compute slider max values from actual data
 SLIDER_MAX = {
-    'Hardness':   int(oil_prop_df['Hardness'].max()),
-    'Cleansing':  int(oil_prop_df['Cleansing'].max()),
-    'Condition':  int(oil_prop_df['Condition'].max()),
-    'Bubbly':     int(oil_prop_df['Bubbly'].max()),
-    'Creamy':     int(oil_prop_df['Creamy'].max()),
-    'Lauric':     int(oil_fat_df['Lauric'].max()),
-    'Myristic':   int(oil_fat_df['Myristic'].max()),
-    'Palmitic':   int(oil_fat_df['Palmitic'].max()),
-    'Stearic':    int(oil_fat_df['Stearic'].max()),
-    'Oleic':      int(oil_fat_df['Oleic'].max()),
-    'Linoleic':   int(oil_fat_df['Linoleic'].max()),
-    'Linolenic':  int(oil_fat_df['Linolenic'].max()),
-    'Ricinoleic': int(oil_fat_df['Ricinoleic'].max()),
+    'Hardness':    int(oil_prop_df['Hardness'].max()),
+    'Cleansing':   int(oil_prop_df['Cleansing'].max()),
+    'Condition':   int(oil_prop_df['Condition'].max()),
+    'Bubbly':      int(oil_prop_df['Bubbly'].max()),
+    'Creamy':      int(oil_prop_df['Creamy'].max()),
+    'Lauric':      int(oil_fat_df['Lauric'].max()),
+    'Myristic':    int(oil_fat_df['Myristic'].max()),
+    'Palmitic':    int(oil_fat_df['Palmitic'].max()),
+    'Stearic':     int(oil_fat_df['Stearic'].max()),
+    'Oleic':       int(oil_fat_df['Oleic'].max()),
+    'Linoleic':    int(oil_fat_df['Linoleic'].max()),
+    'Linolenic':   int(oil_fat_df['Linolenic'].max()),
+    'Ricinoleic':  int(oil_fat_df['Ricinoleic'].max()),
+    'Saturated%':  int(merged_oil_df['Saturated%'].max()),
+    'Unsaturated%':int(merged_oil_df['Unsaturated%'].max()),
 }
 
 # Constants
@@ -719,6 +731,25 @@ app.layout = html.Div([html.Div([html.Div([
                          marks={i: '' for i in range(0, SLIDER_MAX['Ricinoleic'] + 1, 15)},
                          tooltip={"placement": "bottom", "always_visible": True})
                  ], width=2),
+             ]),
+             html.Br(),
+             html.Strong("Saturated / Unsaturated", style={'fontSize': '13px'}),
+             html.Br(), html.Br(),
+             dbc.Row([
+                 dbc.Col([
+                     html.Label('Total Saturated %:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='saturated-filter', min=0, max=SLIDER_MAX['Saturated%'], step=1,
+                         value=[0, SLIDER_MAX['Saturated%']],
+                         marks={i: str(i) for i in range(0, SLIDER_MAX['Saturated%'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=4),
+                 dbc.Col([
+                     html.Label('Total Unsaturated %:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='unsaturated-filter', min=0, max=SLIDER_MAX['Unsaturated%'], step=1,
+                         value=[0, SLIDER_MAX['Unsaturated%']],
+                         marks={i: str(i) for i in range(0, SLIDER_MAX['Unsaturated%'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=4),
              ]),
              html.Br(),
              dbc.Button('Reset Filters', id='reset-filters-btn', color='secondary', size='sm', outline=True),
@@ -1785,11 +1816,13 @@ def toggle_oil_modal(open_clicks, close_clicks, is_open):
     Input('linoleic-filter', 'value'),
     Input('linolenic-filter', 'value'),
     Input('ricinoleic-filter', 'value'),
+    Input('saturated-filter', 'value'),
+    Input('unsaturated-filter', 'value'),
     prevent_initial_call=True
 )
 def search_oils(is_open, hardness_range, cleansing_range, condition_range, bubbly_range, creamy_range,
                 lauric_range, myristic_range, palmitic_range, stearic_range, oleic_range,
-                linoleic_range, linolenic_range, ricinoleic_range):
+                linoleic_range, linolenic_range, ricinoleic_range, saturated_range, unsaturated_range):
     """Filter oils live as sliders change; show all oils when modal opens"""
     if not is_open:
         return no_update, no_update
@@ -1809,7 +1842,9 @@ def search_oils(is_open, hardness_range, cleansing_range, condition_range, bubbl
         (merged_oil_df['Oleic']      >= oleic_range[0])      & (merged_oil_df['Oleic']      <= oleic_range[1])      &
         (merged_oil_df['Linoleic']   >= linoleic_range[0])   & (merged_oil_df['Linoleic']   <= linoleic_range[1])   &
         (merged_oil_df['Linolenic']  >= linolenic_range[0])  & (merged_oil_df['Linolenic']  <= linolenic_range[1])  &
-        (merged_oil_df['Ricinoleic'] >= ricinoleic_range[0]) & (merged_oil_df['Ricinoleic'] <= ricinoleic_range[1])
+        (merged_oil_df['Ricinoleic']   >= ricinoleic_range[0])   & (merged_oil_df['Ricinoleic']   <= ricinoleic_range[1])   &
+        (merged_oil_df['Saturated%']   >= saturated_range[0])   & (merged_oil_df['Saturated%']   <= saturated_range[1])   &
+        (merged_oil_df['Unsaturated%'] >= unsaturated_range[0]) & (merged_oil_df['Unsaturated%'] <= unsaturated_range[1])
     ]
 
     if filtered_df.empty:
@@ -1900,6 +1935,8 @@ def display_oil_comparison(selected_oils):
     Output('linoleic-filter', 'value'),
     Output('linolenic-filter', 'value'),
     Output('ricinoleic-filter', 'value'),
+    Output('saturated-filter', 'value'),
+    Output('unsaturated-filter', 'value'),
     Input('reset-filters-btn', 'n_clicks'),
     prevent_initial_call=True
 )
@@ -1919,6 +1956,8 @@ def reset_filters(n_clicks):
         [0, SLIDER_MAX['Linoleic']],
         [0, SLIDER_MAX['Linolenic']],
         [0, SLIDER_MAX['Ricinoleic']],
+        [0, SLIDER_MAX['Saturated%']],
+        [0, SLIDER_MAX['Unsaturated%']],
     )
 
 
