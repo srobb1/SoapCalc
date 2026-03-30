@@ -5,14 +5,7 @@ Checks recipe against 11 HTFHP criteria from The Ultimate Guide to Hot Process S
 import pandas as pd
 from dash import dash_table, html
 import dash_bootstrap_components as dbc
-
-
-def convert_to_number(value):
-    """Convert string value to number, return 0 if conversion fails"""
-    try:
-        return float(value)
-    except (ValueError, TypeError):
-        return 0
+from recipe_calculator import convert_to_number
 
 
 def create_compliance_report(selected_oils_data, total_oil_weight, water_weight, total_weight, 
@@ -119,7 +112,7 @@ def create_compliance_report(selected_oils_data, total_oil_weight, water_weight,
     has_accelerant = any(
         any(acc.lower() in str(row.get('Additive', '')).lower() or acc.lower() in str(row.get('Value', '')).lower() for acc in trace_accelerants)
         for row in (additives_data or [])
-        if row.get('Value') and str(row.get('Value')).strip() not in ['', 'Add to oil list', 'See LyeType', 'Dissolve in lye or add directly', 'Heat-sensitive - add room temp or after cook', 'Heat-sensitive - may cause caramelization', 'Add room temperature or slightly warmed', 'Add room temperature or warmed', 'WARM before adding to HTHP', 'Add room temperature', 'Add to oils at beginning', 'Add to lye solution']
+        if row.get('Value') and str(row.get('Value')).strip() not in ['', 'Add to oil list', 'See LyeType', 'Dissolve in lye or add directly', 'Heat-sensitive - add room temp or after cook', 'Heat-sensitive - may cause caramelization', 'Add room temperature or slightly warmed', 'Add room temperature or warmed', 'WARM before adding to HTHP', 'Add room temperature', 'Add to oils at beginning', 'Add to lye solution', 'Grate and melt with oils', 'Add drops to heated oil']
     )
     
     # Also check if stearic acid is in recipe oils

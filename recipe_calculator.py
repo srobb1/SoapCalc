@@ -392,7 +392,7 @@ def create_overview_table(total_oil_weight, water_weight_grams, lye_type, lye_di
         cell_selectable=False,
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-        style_cell={'textAlign': 'center', 'padding': '5px', 'text-size': '12px'},
+        style_cell={'textAlign': 'center', 'padding': '5px', 'fontSize': '12px'},
     )
 
 
@@ -416,7 +416,7 @@ def create_oils_table(recipe_details):
         cell_selectable=False,
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-        style_cell={'textAlign': 'center', 'padding': '5px', 'text-size': '12px'},
+        style_cell={'textAlign': 'center', 'padding': '5px', 'fontSize': '12px'},
     )
 
 
@@ -481,7 +481,7 @@ def create_summary_table(total_oil_weight, water_weight_grams, water_weight_ounc
         data=summary_df.to_dict('records'),
         cell_selectable=False,
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-        style_cell={'textAlign': 'center', 'padding': '5px', 'text-size': '12px'},
+        style_cell={'textAlign': 'center', 'padding': '5px', 'fontSize': '12px'},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
     )
 
@@ -500,7 +500,7 @@ def create_properties_table(properties, ranges):
         data=prop_data_df.to_dict('records'),
         cell_selectable=False,
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-        style_cell={'textAlign': 'left', 'padding': '5px', 'text-size': '12px'},
+        style_cell={'textAlign': 'left', 'padding': '5px', 'fontSize': '12px'},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
     )
 
@@ -515,7 +515,7 @@ def create_fats_table(fats):
         data=fats_df.to_dict('records'),
         cell_selectable=False,
         style_table={'width': '100%', 'border': '1px solid black', 'borderCollapse': 'collapse', 'overflowX': 'auto'},
-        style_cell={'textAlign': 'left', 'padding': '5px', 'text-size': '12px'},
+        style_cell={'textAlign': 'left', 'padding': '5px', 'fontSize': '12px'},
         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
     )
 

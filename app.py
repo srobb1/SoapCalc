@@ -141,6 +141,25 @@ other_ingredient_recipe_columns = [
     {"name": "Notes", "id": "Notes"}
 ]
 
+oil_properties_columns = [
+    {'name': 'Oil', 'id': 'Oil'},
+    {'name': 'Cleansing', 'id': 'Cleansing'},
+    {'name': 'Hardness', 'id': 'Hardness'},
+    {'name': 'Condition', 'id': 'Condition'},
+    {'name': 'Bubbly', 'id': 'Bubbly'},
+    {'name': 'Creamy', 'id': 'Creamy'},
+    {'name': 'Iodine', 'id': 'Iodine'},
+    {'name': 'INS', 'id': 'INS'},
+    {'name': 'Lauric', 'id': 'Lauric'},
+    {'name': 'Myristic', 'id': 'Myristic'},
+    {'name': 'Palmitic', 'id': 'Palmitic'},
+    {'name': 'Stearic', 'id': 'Stearic'},
+    {'name': 'Oleic', 'id': 'Oleic'},
+    {'name': 'Linoleic', 'id': 'Linoleic'},
+    {'name': 'Linolenic', 'id': 'Linolenic'},
+    {'name': 'Ricinoleic', 'id': 'Ricinoleic'},
+]
+
 other_ingredient_initial_rows = [
     {"Ingredient": "", "Type": "Fixed", "Amount": "", "Unit": "", "Notes": ""},
     {"Ingredient": "", "Type": "%TOW", "Amount": "", "Unit": "%", "Notes": ""},
@@ -834,7 +853,8 @@ app.layout = html.Div([html.Div([html.Div([
         ),
         dbc.Col(
             dbc.Button('Export Recipe (JSON)', id='export-recipe', n_clicks=0, color='primary', size='lg'),
-            width='auto'
+            width='auto',
+            id='export-recipe-container'
         ),
         dbc.Col(
             dbc.Button('Print Recipe', id='print-button', n_clicks=0, color='success', size='lg'),
@@ -981,7 +1001,7 @@ def _update_dropdown_state(selected_items, stored_items, all_options):
     if stored_items is None:
         stored_items = []
     
-    updated_selected = list(set(stored_items + selected_items))
+    updated_selected = list(dict.fromkeys(stored_items + selected_items))
     return all_options, updated_selected
 
 # Callback to update the pcsf dropdown options based on the data in the dropdown and selected oils
@@ -1011,16 +1031,16 @@ def update_pcsf_dropdown(selected_oils, stored_selected_oils):
    State('stored-pcsf-selected-oils', 'data')]
 )
 def update_pcsf_table(selected_oils, timestamp, contents, oils_data, filename, data, stored_selected_oils):
-      """
-      Update PCSF oils data table
-      
-      Handles dropdown selection changes and recipe uploads.
-      Preserves existing %TOW values when oils are reselected.
-      """
-      ctx = callback_context
-      trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    """
+    Update PCSF oils data table
 
-      if trigger_id == 'upload-recipe-json' and contents is not None:
+    Handles dropdown selection changes and recipe uploads.
+    Preserves existing %TOW values when oils are reselected.
+    """
+    ctx = callback_context
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if trigger_id == 'upload-recipe-json' and contents is not None:
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
         try:
@@ -1029,47 +1049,46 @@ def update_pcsf_table(selected_oils, timestamp, contents, oils_data, filename, d
                 new_data = recipe.get('pcsf-selected-oils-data', [])
                 return new_data, [{'name': 'PCSF Oil', 'id': 'PCSF Oil'}, {'name': '%TOW', 'id': '%TOW', 'editable': True}, {'name': 'Grams', 'id': 'Grams', 'editable': False}, {'name': 'Ounces', 'id': 'Ounces', 'editable': False}], [oil['PCSF Oil'] for oil in new_data]
         except Exception as e:
-            return (no_update,no_update,no_update)
+            return (no_update, no_update, no_update)
 
-      if selected_oils is None:
-          selected_oils = []
-      if stored_selected_oils is None:
+    if selected_oils is None:
+        selected_oils = []
+    if stored_selected_oils is None:
         stored_selected_oils = []
 
-      # Create a dictionary of current data for easy lookup
-      current_data = {row['PCSF Oil']: row for row in data} if data else {}
+    # Create a dictionary of current data for easy lookup
+    current_data = {row['PCSF Oil']: row for row in data} if data else {}
 
-      new_data = []
-      for oil in selected_oils:
-          if oil in current_data:
-              new_data.append(current_data[oil])
-          else:
-              new_data.append({
-                  'PCSF Oil': oil,
-                  '%TOW': 0,
-              })
+    new_data = []
+    for oil in selected_oils:
+        if oil in current_data:
+            new_data.append(current_data[oil])
+        else:
+            new_data.append({
+                'PCSF Oil': oil,
+                '%TOW': 0,
+            })
 
+    # Calculate grams and ounces for PCSF oils
+    if oils_data:
+        total_oil_weight = sum(convert_to_number(row.get('Grams', 0)) for row in oils_data)
+        for row in new_data:
+            tow_value = convert_to_number(row.get('%TOW', 0))
+            if tow_value > 0 and total_oil_weight > 0:
+                grams = tow_value * (total_oil_weight / 100)
+                ounces = grams / 28.3495
+                row['Grams'] = round(grams, 2)
+                row['Ounces'] = round(ounces, 2)
+            else:
+                row['Grams'] = ""
+                row['Ounces'] = ""
 
-      # Calculate grams and ounces for PCSF oils
-      if oils_data:
-          total_oil_weight = sum(convert_to_number(row.get('Grams', 0)) for row in oils_data)
-          for row in new_data:
-              tow_value = convert_to_number(row.get('%TOW', 0))
-              if tow_value > 0 and total_oil_weight > 0:
-                  grams = tow_value * (total_oil_weight / 100)
-                  ounces = grams / 28.3495
-                  row['Grams'] = round(grams, 2)
-                  row['Ounces'] = round(ounces, 2)
-              else:
-                  row['Grams'] = ""
-                  row['Ounces'] = ""
-
-      return new_data, [
+    return new_data, [
         {'name': 'PCSF Oil', 'id': 'PCSF Oil'},
         {'name': '%TOW', 'id': '%TOW', 'editable': True},
         {'name': 'Grams', 'id': 'Grams', 'editable': False},
         {'name': 'Ounces', 'id': 'Ounces', 'editable': False}
-      ], selected_oils
+    ], selected_oils
 
 
 # Callback to show/hide total weight input based on method calculation
@@ -1319,26 +1338,23 @@ def update_table(selected_oils, lye_type, unit, method, timestamp, contents, fil
 
 @app.callback(
   Output('results', 'children'),
-  Input('recipe-name','value'),
-  Input('recipe-notes','value'),
-  Input('selected-oils-data', 'data'),
-  Input('lye_discount', 'value'),
-  Input('water_calculation', 'value'),
-  Input('water_by_oil_input', 'value'),
-  Input('water_by_lye_input', 'value'),
-  Input('water_lye_ratio_input', 'value'),
-  Input('lye_type', 'value'),
   Input('get-recipe', 'n_clicks'),
-  Input('pcsf-selected-oils-data', 'data'),
+  State('recipe-name','value'),
+  State('recipe-notes','value'),
+  State('selected-oils-data', 'data'),
+  State('lye_discount', 'value'),
+  State('water_calculation', 'value'),
+  State('water_by_oil_input', 'value'),
+  State('water_by_lye_input', 'value'),
+  State('water_lye_ratio_input', 'value'),
+  State('lye_type', 'value'),
+  State('pcsf-selected-oils-data', 'data'),
   State('additives-table', 'data'),
-  State('other-ingredients-table', 'data')
-
+  State('other-ingredients-table', 'data'),
+  prevent_initial_call=True
 )
-def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input, lye_type, n_clicks, pcsf_oil_data, additives_data, other_ingredients_data):
+def generate_recipe_table(n_clicks, recipe_name, recipe_notes, data, lye_discount, water_calculation, water_by_oil_input, water_by_lye_input, water_lye_ratio_input, lye_type, pcsf_oil_data, additives_data, other_ingredients_data):
    """Generate complete recipe table with all calculations and formatting"""
-   if n_clicks is None:
-        return ''
-   
    # Validate inputs
    error = validate_recipe_inputs(recipe_name, data, pcsf_oil_data)
    if error:
@@ -1485,7 +1501,7 @@ def generate_recipe_table(recipe_name, recipe_notes, data, lye_discount, water_c
           ])
       ], style={'paddingLeft': '10px', 'paddingRight': '10px'})
       ], style={'width': '100%'})
-  #return html.Div()
+   return html.Div()
 
 
 
@@ -1767,24 +1783,7 @@ def search_oils(n_clicks, cleansing_range, hardness_range, condition_range, bubb
     
     results_table = dash_table.DataTable(
         data=filtered_df.reset_index().to_dict('records'),
-        columns=[
-            {'name': 'Oil', 'id': 'Oil'},
-            {'name': 'Cleansing', 'id': 'Cleansing'},
-            {'name': 'Hardness', 'id': 'Hardness'},
-            {'name': 'Condition', 'id': 'Condition'},
-            {'name': 'Bubbly', 'id': 'Bubbly'},
-            {'name': 'Creamy', 'id': 'Creamy'},
-            {'name': 'Iodine', 'id': 'Iodine'},
-            {'name': 'INS', 'id': 'INS'},
-            {'name': 'Lauric', 'id': 'Lauric'},
-            {'name': 'Myristic', 'id': 'Myristic'},
-            {'name': 'Palmitic', 'id': 'Palmitic'},
-            {'name': 'Stearic', 'id': 'Stearic'},
-            {'name': 'Oleic', 'id': 'Oleic'},
-            {'name': 'Linoleic', 'id': 'Linoleic'},
-            {'name': 'Linolenic', 'id': 'Linolenic'},
-            {'name': 'Ricinoleic', 'id': 'Ricinoleic'},
-        ],
+        columns=oil_properties_columns,
         sort_action="native",
         style_header={
             'fontSize': '13px',
@@ -1862,24 +1861,7 @@ def display_oil_comparison(selected_oils):
 
     comparison_table = dash_table.DataTable(
         data=comparison_df.reset_index().to_dict('records'),
-        columns=[
-            {'name': 'Oil', 'id': 'Oil'},
-            {'name': 'Cleansing', 'id': 'Cleansing'},
-            {'name': 'Hardness', 'id': 'Hardness'},
-            {'name': 'Condition', 'id': 'Condition'},
-            {'name': 'Bubbly', 'id': 'Bubbly'},
-            {'name': 'Creamy', 'id': 'Creamy'},
-            {'name': 'Iodine', 'id': 'Iodine'},
-            {'name': 'INS', 'id': 'INS'},
-            {'name': 'Lauric', 'id': 'Lauric'},
-            {'name': 'Myristic', 'id': 'Myristic'},
-            {'name': 'Palmitic', 'id': 'Palmitic'},
-            {'name': 'Stearic', 'id': 'Stearic'},
-            {'name': 'Oleic', 'id': 'Oleic'},
-            {'name': 'Linoleic', 'id': 'Linoleic'},
-            {'name': 'Linolenic', 'id': 'Linolenic'},
-            {'name': 'Ricinoleic', 'id': 'Ricinoleic'},
-        ],
+        columns=oil_properties_columns,
         sort_action="native",
         style_header={
             'fontSize': '13px',
