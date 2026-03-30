@@ -24,6 +24,27 @@ OIL_FATS_FILE = DATA_DIR / 'Oil_fats.tsv'
 oil_prop_df = pd.read_csv(OIL_PROPERTIES_FILE, header=0, index_col=0, sep="\t")
 oil_fat_df = pd.read_csv(OIL_FATS_FILE, header=0, index_col=0, sep="\t")
 
+# Pre-compute merged oil dataframe once for use in browser callbacks
+merged_oil_df = oil_prop_df.merge(oil_fat_df, left_index=True, right_index=True, how='left').reset_index()
+merged_oil_df = merged_oil_df.rename(columns={'index': 'Oil'}) if 'index' in merged_oil_df.columns else merged_oil_df
+
+# Pre-compute slider max values from actual data
+SLIDER_MAX = {
+    'Hardness':   int(oil_prop_df['Hardness'].max()),
+    'Cleansing':  int(oil_prop_df['Cleansing'].max()),
+    'Condition':  int(oil_prop_df['Condition'].max()),
+    'Bubbly':     int(oil_prop_df['Bubbly'].max()),
+    'Creamy':     int(oil_prop_df['Creamy'].max()),
+    'Lauric':     int(oil_fat_df['Lauric'].max()),
+    'Myristic':   int(oil_fat_df['Myristic'].max()),
+    'Palmitic':   int(oil_fat_df['Palmitic'].max()),
+    'Stearic':    int(oil_fat_df['Stearic'].max()),
+    'Oleic':      int(oil_fat_df['Oleic'].max()),
+    'Linoleic':   int(oil_fat_df['Linoleic'].max()),
+    'Linolenic':  int(oil_fat_df['Linolenic'].max()),
+    'Ricinoleic': int(oil_fat_df['Ricinoleic'].max()),
+}
+
 # Constants
 saturated_fats = ("Lauric","Myristic","Palmitic","Stearic")
 unsaturated_fats = ("Oleic","Linoleic","Linolenic","Ricinoleic")
@@ -571,197 +592,143 @@ app.layout = html.Div([html.Div([html.Div([
      dbc.Modal([
          dbc.ModalHeader(dbc.ModalTitle("Oil Properties Browser")),
          dbc.ModalBody([
+
+             # --- Section 1: Compare ---
+             html.H6("Compare Oils", style={'fontWeight': 'bold', 'marginBottom': '6px'}),
+             html.P("Select oils to compare their properties side by side.", style={'fontSize': '12px', 'color': '#888', 'marginBottom': '8px'}),
              dbc.Row([
                  dbc.Col([
-                     html.Label(html.Strong('Compare Oils:'), style={'marginBottom': '8px'}),
                      dcc.Dropdown(
                          id='oil-properties-compare-oils',
+                         options=[{'label': o, 'value': o} for o in oil_prop_df.index],
                          multi=True,
                          placeholder='Select oils to compare...',
                          style={'width': '100%'}
                      )
                  ], width=12)
              ]),
-             html.Br(),
              html.Div(id='oil-properties-compare-results'),
+
+             html.Hr(),
+
+             # --- Section 2: Filter ---
+             html.H6("Filter by Properties", style={'fontWeight': 'bold', 'marginBottom': '6px'}),
+             html.P("Adjust sliders to filter the oil list. Results update automatically.", style={'fontSize': '12px', 'color': '#888', 'marginBottom': '12px'}),
+
+             html.Strong("Soap Properties", style={'fontSize': '13px'}),
+             html.Br(), html.Br(),
+             dbc.Row([
+                 dbc.Col([
+                     html.Label('Hardness:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='hardness-filter', min=0, max=SLIDER_MAX['Hardness'], step=1,
+                         value=[0, SLIDER_MAX['Hardness']],
+                         marks={i: str(i) for i in range(0, SLIDER_MAX['Hardness'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=4),
+                 dbc.Col([
+                     html.Label('Cleansing:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='cleansing-filter', min=0, max=SLIDER_MAX['Cleansing'], step=1,
+                         value=[0, SLIDER_MAX['Cleansing']],
+                         marks={i: str(i) for i in range(0, SLIDER_MAX['Cleansing'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=4),
+                 dbc.Col([
+                     html.Label('Condition:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='condition-filter', min=0, max=SLIDER_MAX['Condition'], step=1,
+                         value=[0, SLIDER_MAX['Condition']],
+                         marks={i: str(i) for i in range(0, SLIDER_MAX['Condition'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=4),
+             ]),
              html.Br(),
-             html.Label(html.Strong('Or filter by properties:'), style={'marginBottom': '8px'}),
+             dbc.Row([
+                 dbc.Col([
+                     html.Label('Bubbly:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='bubbly-filter', min=0, max=SLIDER_MAX['Bubbly'], step=1,
+                         value=[0, SLIDER_MAX['Bubbly']],
+                         marks={i: str(i) for i in range(0, SLIDER_MAX['Bubbly'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=4),
+                 dbc.Col([
+                     html.Label('Creamy:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='creamy-filter', min=0, max=SLIDER_MAX['Creamy'], step=1,
+                         value=[0, SLIDER_MAX['Creamy']],
+                         marks={i: str(i) for i in range(0, SLIDER_MAX['Creamy'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=4),
+             ]),
+             html.Br(),
+             html.Strong("Fat Types", style={'fontSize': '13px'}),
+             html.Br(), html.Br(),
+             dbc.Row([
+                 dbc.Col([
+                     html.Label('Lauric:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='lauric-filter', min=0, max=SLIDER_MAX['Lauric'], step=1,
+                         value=[0, SLIDER_MAX['Lauric']],
+                         marks={i: '' for i in range(0, SLIDER_MAX['Lauric'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=2),
+                 dbc.Col([
+                     html.Label('Myristic:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='myristic-filter', min=0, max=SLIDER_MAX['Myristic'], step=1,
+                         value=[0, SLIDER_MAX['Myristic']],
+                         marks={i: '' for i in range(0, SLIDER_MAX['Myristic'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=2),
+                 dbc.Col([
+                     html.Label('Palmitic:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='palmitic-filter', min=0, max=SLIDER_MAX['Palmitic'], step=1,
+                         value=[0, SLIDER_MAX['Palmitic']],
+                         marks={i: '' for i in range(0, SLIDER_MAX['Palmitic'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=2),
+                 dbc.Col([
+                     html.Label('Stearic:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='stearic-filter', min=0, max=SLIDER_MAX['Stearic'], step=1,
+                         value=[0, SLIDER_MAX['Stearic']],
+                         marks={i: '' for i in range(0, SLIDER_MAX['Stearic'] + 1, 10)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=2),
+                 dbc.Col([
+                     html.Label('Oleic:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='oleic-filter', min=0, max=SLIDER_MAX['Oleic'], step=1,
+                         value=[0, SLIDER_MAX['Oleic']],
+                         marks={i: '' for i in range(0, SLIDER_MAX['Oleic'] + 1, 15)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=2),
+                 dbc.Col([
+                     html.Label('Linoleic:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='linoleic-filter', min=0, max=SLIDER_MAX['Linoleic'], step=1,
+                         value=[0, SLIDER_MAX['Linoleic']],
+                         marks={i: '' for i in range(0, SLIDER_MAX['Linoleic'] + 1, 15)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=2),
+             ]),
+             dbc.Row([
+                 dbc.Col([
+                     html.Label('Linolenic:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='linolenic-filter', min=0, max=SLIDER_MAX['Linolenic'], step=1,
+                         value=[0, SLIDER_MAX['Linolenic']],
+                         marks={i: '' for i in range(0, SLIDER_MAX['Linolenic'] + 1, 15)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=2),
+                 dbc.Col([
+                     html.Label('Ricinoleic:', style={'fontSize': '12px'}),
+                     dcc.RangeSlider(id='ricinoleic-filter', min=0, max=SLIDER_MAX['Ricinoleic'], step=1,
+                         value=[0, SLIDER_MAX['Ricinoleic']],
+                         marks={i: '' for i in range(0, SLIDER_MAX['Ricinoleic'] + 1, 15)},
+                         tooltip={"placement": "bottom", "always_visible": True})
+                 ], width=2),
+             ]),
+             html.Br(),
+             dbc.Button('Reset Filters', id='reset-filters-btn', color='secondary', size='sm', outline=True),
+             html.Hr(),
 
-
-             html.Div([
-                 dbc.Row([
-                     dbc.Col([
-                         html.Label(html.Strong('Hardness:'), style={'marginBottom': '8px'}),
-                         dcc.RangeSlider(
-                             id='hardness-filter',
-                             min=0,
-                             max=int(oil_prop_df['Hardness'].max()),
-                             step=1,
-                             value=[0, int(oil_prop_df['Hardness'].max())],
-                             marks={i: str(i) for i in range(0, int(oil_prop_df['Hardness'].max()) + 1, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=4),
-                     dbc.Col([
-                         html.Label(html.Strong('Cleansing:'), style={'marginBottom': '8px'}),
-                         dcc.RangeSlider(
-                             id='cleansing-filter',
-                             min=0,
-                             max=int(oil_prop_df['Cleansing'].max()),
-                             step=1,
-                             value=[0, int(oil_prop_df['Cleansing'].max())],
-                             marks={i: str(i) for i in range(0, int(oil_prop_df['Cleansing'].max()) + 1, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=4),
-                     dbc.Col([
-                         html.Label(html.Strong('Condition:'), style={'marginBottom': '8px'}),
-                         dcc.RangeSlider(
-                             id='condition-filter',
-                             min=0,
-                             max=int(oil_prop_df['Condition'].max()),
-                             step=1,
-                             value=[0, int(oil_prop_df['Condition'].max())],
-                             marks={i: str(i) for i in range(0, int(oil_prop_df['Condition'].max()) + 1, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=4),
-                 ]),
-                 html.Br(),
-                 dbc.Row([
-                     dbc.Col([
-                         html.Label(html.Strong('Bubbly:'), style={'marginBottom': '8px'}),
-                         dcc.RangeSlider(
-                             id='bubbly-filter',
-                             min=0,
-                             max=int(oil_prop_df['Bubbly'].max()),
-                             step=1,
-                             value=[0, int(oil_prop_df['Bubbly'].max())],
-                             marks={i: str(i) for i in range(0, int(oil_prop_df['Bubbly'].max()) + 1, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=4),
-                     dbc.Col([
-                         html.Label(html.Strong('Creamy:'), style={'marginBottom': '8px'}),
-                         dcc.RangeSlider(
-                             id='creamy-filter',
-                             min=0,
-                             max=int(oil_prop_df['Creamy'].max()),
-                             step=1,
-                             value=[0, int(oil_prop_df['Creamy'].max())],
-                             marks={i: str(i) for i in range(0, int(oil_prop_df['Creamy'].max()) + 1, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=4),
-                 ]),
-                 html.Br(),
-                 html.Label(html.Strong('Fat Types:'), style={'marginBottom': '8px'}),
-                 dbc.Row([
-                     dbc.Col([
-                         html.Label('Lauric:', style={'fontSize': '12px'}),
-                         dcc.RangeSlider(
-                             id='lauric-filter',
-                             min=0,
-                             max=50,
-                             step=1,
-                             value=[0, 50],
-                             marks={i: '' for i in range(0, 51, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=2),
-                     dbc.Col([
-                         html.Label('Myristic:', style={'fontSize': '12px'}),
-                         dcc.RangeSlider(
-                             id='myristic-filter',
-                             min=0,
-                             max=30,
-                             step=1,
-                             value=[0, 30],
-                             marks={i: '' for i in range(0, 31, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=2),
-                     dbc.Col([
-                         html.Label('Palmitic:', style={'fontSize': '12px'}),
-                         dcc.RangeSlider(
-                             id='palmitic-filter',
-                             min=0,
-                             max=50,
-                             step=1,
-                             value=[0, 50],
-                             marks={i: '' for i in range(0, 51, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=2),
-                     dbc.Col([
-                         html.Label('Stearic:', style={'fontSize': '12px'}),
-                         dcc.RangeSlider(
-                             id='stearic-filter',
-                             min=0,
-                             max=50,
-                             step=1,
-                             value=[0, 50],
-                             marks={i: '' for i in range(0, 51, 10)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=2),
-                     dbc.Col([
-                         html.Label('Oleic:', style={'fontSize': '12px'}),
-                         dcc.RangeSlider(
-                             id='oleic-filter',
-                             min=0,
-                             max=90,
-                             step=1,
-                             value=[0, 90],
-                             marks={i: '' for i in range(0, 91, 15)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=2),
-                     dbc.Col([
-                         html.Label('Linoleic:', style={'fontSize': '12px'}),
-                         dcc.RangeSlider(
-                             id='linoleic-filter',
-                             min=0,
-                             max=80,
-                             step=1,
-                             value=[0, 80],
-                             marks={i: '' for i in range(0, 81, 15)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=2),
-                 ]),
-                 dbc.Row([
-                     dbc.Col([
-                         html.Label('Linolenic:', style={'fontSize': '12px'}),
-                         dcc.RangeSlider(
-                             id='linolenic-filter',
-                             min=0,
-                             max=80,
-                             step=1,
-                             value=[0, 80],
-                             marks={i: '' for i in range(0, 81, 15)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=2),
-                     dbc.Col([
-                         html.Label('Ricinoleic:', style={'fontSize': '12px'}),
-                         dcc.RangeSlider(
-                             id='ricinoleic-filter',
-                             min=0,
-                             max=90,
-                             step=1,
-                             value=[0, 90],
-                             marks={i: '' for i in range(0, 91, 15)},
-                             tooltip={"placement": "bottom", "always_visible": True}
-                         )
-                     ], width=2),
-                 ]),
-                 html.Br(),
-                 dbc.Button('Search', id='search-oils-btn', color='primary', className='me-2'),
-                 html.Br(),
-                 html.Br(),
-                 html.Div(id='oil-search-results')
-             ])
+             # --- Results ---
+             html.Div(id='oil-search-results'),
+             html.Br(),
+             dbc.Button('Add Selected to Recipe', id='add-to-recipe-btn', color='success', size='sm',
+                        style={'display': 'none'}, n_clicks=0),
          ]),
          dbc.ModalFooter([
              dbc.Button("Close", id="close-oil-modal", className="ms-auto", color='secondary')
@@ -1803,90 +1770,70 @@ def toggle_oil_modal(open_clicks, close_clicks, is_open):
 
 @app.callback(
     Output('oil-search-results', 'children'),
-    [Input('search-oils-btn', 'n_clicks')],
-    [State('cleansing-filter', 'value'),
-     State('hardness-filter', 'value'),
-     State('condition-filter', 'value'),
-     State('bubbly-filter', 'value'),
-     State('creamy-filter', 'value'),
-     State('lauric-filter', 'value'),
-     State('myristic-filter', 'value'),
-     State('palmitic-filter', 'value'),
-     State('stearic-filter', 'value'),
-     State('oleic-filter', 'value'),
-     State('linoleic-filter', 'value'),
-     State('linolenic-filter', 'value'),
-     State('ricinoleic-filter', 'value')],
+    Output('add-to-recipe-btn', 'style'),
+    Input('oil-properties-modal', 'is_open'),
+    Input('hardness-filter', 'value'),
+    Input('cleansing-filter', 'value'),
+    Input('condition-filter', 'value'),
+    Input('bubbly-filter', 'value'),
+    Input('creamy-filter', 'value'),
+    Input('lauric-filter', 'value'),
+    Input('myristic-filter', 'value'),
+    Input('palmitic-filter', 'value'),
+    Input('stearic-filter', 'value'),
+    Input('oleic-filter', 'value'),
+    Input('linoleic-filter', 'value'),
+    Input('linolenic-filter', 'value'),
+    Input('ricinoleic-filter', 'value'),
     prevent_initial_call=True
 )
-def search_oils(n_clicks, cleansing_range, hardness_range, condition_range, bubbly_range, creamy_range, lauric_range, myristic_range, palmitic_range, stearic_range, oleic_range, linoleic_range, linolenic_range, ricinoleic_range):
-    """Search and filter oils based on property criteria"""
-    if n_clicks is None or n_clicks == 0:
-        return html.Div()
-    
-    cleansing_min, cleansing_max = cleansing_range
-    hardness_min, hardness_max = hardness_range
-    condition_min, condition_max = condition_range
-    bubbly_min, bubbly_max = bubbly_range
-    creamy_min, creamy_max = creamy_range
-    lauric_min, lauric_max = lauric_range
-    myristic_min, myristic_max = myristic_range
-    palmitic_min, palmitic_max = palmitic_range
-    stearic_min, stearic_max = stearic_range
-    oleic_min, oleic_max = oleic_range
-    linoleic_min, linoleic_max = linoleic_range
-    linolenic_min, linolenic_max = linolenic_range
-    ricinoleic_min, ricinoleic_max = ricinoleic_range
-    
-    # Merge oil properties with fat data
-    merged_df = oil_prop_df.merge(oil_fat_df, left_index=True, right_index=True, how='left')
-    
-    filtered_df = merged_df[
-        (merged_df['Cleansing'] >= cleansing_min) & (merged_df['Cleansing'] <= cleansing_max) &
-        (merged_df['Hardness'] >= hardness_min) & (merged_df['Hardness'] <= hardness_max) &
-        (merged_df['Condition'] >= condition_min) & (merged_df['Condition'] <= condition_max) &
-        (merged_df['Bubbly'] >= bubbly_min) & (merged_df['Bubbly'] <= bubbly_max) &
-        (merged_df['Creamy'] >= creamy_min) & (merged_df['Creamy'] <= creamy_max) &
-        (merged_df['Lauric'] >= lauric_min) & (merged_df['Lauric'] <= lauric_max) &
-        (merged_df['Myristic'] >= myristic_min) & (merged_df['Myristic'] <= myristic_max) &
-        (merged_df['Palmitic'] >= palmitic_min) & (merged_df['Palmitic'] <= palmitic_max) &
-        (merged_df['Stearic'] >= stearic_min) & (merged_df['Stearic'] <= stearic_max) &
-        (merged_df['Oleic'] >= oleic_min) & (merged_df['Oleic'] <= oleic_max) &
-        (merged_df['Linoleic'] >= linoleic_min) & (merged_df['Linoleic'] <= linoleic_max) &
-        (merged_df['Linolenic'] >= linolenic_min) & (merged_df['Linolenic'] <= linolenic_max) &
-        (merged_df['Ricinoleic'] >= ricinoleic_min) & (merged_df['Ricinoleic'] <= ricinoleic_max)
+def search_oils(is_open, hardness_range, cleansing_range, condition_range, bubbly_range, creamy_range,
+                lauric_range, myristic_range, palmitic_range, stearic_range, oleic_range,
+                linoleic_range, linolenic_range, ricinoleic_range):
+    """Filter oils live as sliders change; show all oils when modal opens"""
+    if not is_open:
+        return no_update, no_update
+
+    total = len(merged_oil_df)
+
+    filtered_df = merged_oil_df[
+        (merged_oil_df['Hardness']   >= hardness_range[0])   & (merged_oil_df['Hardness']   <= hardness_range[1])   &
+        (merged_oil_df['Cleansing']  >= cleansing_range[0])  & (merged_oil_df['Cleansing']  <= cleansing_range[1])  &
+        (merged_oil_df['Condition']  >= condition_range[0])  & (merged_oil_df['Condition']  <= condition_range[1])  &
+        (merged_oil_df['Bubbly']     >= bubbly_range[0])     & (merged_oil_df['Bubbly']     <= bubbly_range[1])     &
+        (merged_oil_df['Creamy']     >= creamy_range[0])     & (merged_oil_df['Creamy']     <= creamy_range[1])     &
+        (merged_oil_df['Lauric']     >= lauric_range[0])     & (merged_oil_df['Lauric']     <= lauric_range[1])     &
+        (merged_oil_df['Myristic']   >= myristic_range[0])   & (merged_oil_df['Myristic']   <= myristic_range[1])   &
+        (merged_oil_df['Palmitic']   >= palmitic_range[0])   & (merged_oil_df['Palmitic']   <= palmitic_range[1])   &
+        (merged_oil_df['Stearic']    >= stearic_range[0])    & (merged_oil_df['Stearic']    <= stearic_range[1])    &
+        (merged_oil_df['Oleic']      >= oleic_range[0])      & (merged_oil_df['Oleic']      <= oleic_range[1])      &
+        (merged_oil_df['Linoleic']   >= linoleic_range[0])   & (merged_oil_df['Linoleic']   <= linoleic_range[1])   &
+        (merged_oil_df['Linolenic']  >= linolenic_range[0])  & (merged_oil_df['Linolenic']  <= linolenic_range[1])  &
+        (merged_oil_df['Ricinoleic'] >= ricinoleic_range[0]) & (merged_oil_df['Ricinoleic'] <= ricinoleic_range[1])
     ]
-    
+
     if filtered_df.empty:
-        return html.Div([
-            html.Br(),
-            html.P("No oils found matching your criteria.", style={'color': 'red', 'fontWeight': 'bold'})
-        ])
-    
+        return html.P("No oils match your criteria.", style={'color': 'red', 'fontWeight': 'bold'}), {'display': 'none'}
+
     results_table = dash_table.DataTable(
-        data=filtered_df.reset_index().to_dict('records'),
+        id='oil-search-results-table',
+        data=filtered_df.to_dict('records'),
         columns=oil_properties_columns,
-        sort_action="native",
-        style_header={
-            'fontSize': '13px',
-            'fontWeight': 'bold',
-            'paddingLeft': '10px',
-            'backgroundColor': '#fafafa',
-            'cursor': 'pointer'
-        },
-        style_cell={
-            'textAlign': 'left',
-            'paddingLeft': '10px',
-            'fontSize': '12px',
-        },
+        row_selectable='multi',
+        selected_rows=[],
+        sort_action='native',
+        style_header={'fontSize': '13px', 'fontWeight': 'bold', 'paddingLeft': '10px', 'backgroundColor': '#fafafa', 'cursor': 'pointer'},
+        style_cell={'textAlign': 'left', 'paddingLeft': '10px', 'fontSize': '12px'},
         style_as_list_view=True,
     )
-    
+
+    count = len(filtered_df)
+    label_color = 'red' if count == 0 else ('orange' if count < total else '#555')
     return html.Div([
-        html.Br(),
-        html.P(f"Found {len(filtered_df)} oil(s) matching your criteria:", style={'fontWeight': 'bold'}),
+        html.P(f"Showing {count} of {total} oils — select rows then click 'Add Selected to Recipe'",
+               style={'fontWeight': 'bold', 'fontSize': '12px', 'color': label_color, 'marginBottom': '6px'}),
         results_table
-    ])
+    ]), {'display': 'inline-block'}
 
 
 # Callback to show/hide print button based on results
@@ -1913,18 +1860,6 @@ def toggle_compliance_print(toggle_value):
     return 'no-print'  # Add no-print class to hide from print
 
 
-# Callback to populate oil comparison dropdown
-@app.callback(
-    Output('oil-properties-compare-oils', 'options'),
-    Input('oil-properties-modal', 'is_open')
-)
-def populate_oil_dropdown(is_open):
-    """Populate the oil selection dropdown"""
-    if is_open:
-        return [{'label': oil, 'value': oil} for oil in oil_prop_df.index]
-    return []
-
-
 # Callback to display comparison results
 @app.callback(
     Output('oil-properties-compare-results', 'children'),
@@ -1932,36 +1867,76 @@ def populate_oil_dropdown(is_open):
 )
 def display_oil_comparison(selected_oils):
     """Display comparison table for selected oils"""
-    if not selected_oils or len(selected_oils) == 0:
+    if not selected_oils:
         return html.Div()
 
-    # Merge oil properties with fat data
-    merged_df = oil_prop_df.merge(oil_fat_df, left_index=True, right_index=True, how='left')
-
-    # Filter to selected oils
-    comparison_df = merged_df.loc[selected_oils]
-
-    comparison_table = dash_table.DataTable(
-        data=comparison_df.reset_index().to_dict('records'),
-        columns=oil_properties_columns,
-        sort_action="native",
-        style_header={
-            'fontSize': '13px',
-            'fontWeight': 'bold',
-            'paddingLeft': '10px',
-            'backgroundColor': '#fafafa',
-        },
-        style_cell={
-            'textAlign': 'left',
-            'paddingLeft': '10px',
-            'fontSize': '12px',
-        },
-        style_as_list_view=True,
-    )
+    comparison_df = merged_oil_df[merged_oil_df['Oil'].isin(selected_oils)]
 
     return html.Div([
-        comparison_table
+        html.Br(),
+        dash_table.DataTable(
+            data=comparison_df.to_dict('records'),
+            columns=oil_properties_columns,
+            sort_action='native',
+            style_header={'fontSize': '13px', 'fontWeight': 'bold', 'paddingLeft': '10px', 'backgroundColor': '#fafafa'},
+            style_cell={'textAlign': 'left', 'paddingLeft': '10px', 'fontSize': '12px'},
+            style_as_list_view=True,
+        ),
+        html.Br(),
     ])
+
+
+@app.callback(
+    Output('hardness-filter', 'value'),
+    Output('cleansing-filter', 'value'),
+    Output('condition-filter', 'value'),
+    Output('bubbly-filter', 'value'),
+    Output('creamy-filter', 'value'),
+    Output('lauric-filter', 'value'),
+    Output('myristic-filter', 'value'),
+    Output('palmitic-filter', 'value'),
+    Output('stearic-filter', 'value'),
+    Output('oleic-filter', 'value'),
+    Output('linoleic-filter', 'value'),
+    Output('linolenic-filter', 'value'),
+    Output('ricinoleic-filter', 'value'),
+    Input('reset-filters-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+def reset_filters(n_clicks):
+    """Reset all sliders to their full range"""
+    return (
+        [0, SLIDER_MAX['Hardness']],
+        [0, SLIDER_MAX['Cleansing']],
+        [0, SLIDER_MAX['Condition']],
+        [0, SLIDER_MAX['Bubbly']],
+        [0, SLIDER_MAX['Creamy']],
+        [0, SLIDER_MAX['Lauric']],
+        [0, SLIDER_MAX['Myristic']],
+        [0, SLIDER_MAX['Palmitic']],
+        [0, SLIDER_MAX['Stearic']],
+        [0, SLIDER_MAX['Oleic']],
+        [0, SLIDER_MAX['Linoleic']],
+        [0, SLIDER_MAX['Linolenic']],
+        [0, SLIDER_MAX['Ricinoleic']],
+    )
+
+
+@app.callback(
+    Output('selected-oils', 'value', allow_duplicate=True),
+    Input('add-to-recipe-btn', 'n_clicks'),
+    State('oil-search-results-table', 'selected_rows'),
+    State('oil-search-results-table', 'data'),
+    State('selected-oils', 'value'),
+    prevent_initial_call=True
+)
+def add_oils_from_browser(n_clicks, selected_rows, table_data, current_oils):
+    """Add oils selected in the browser directly to the recipe dropdown"""
+    if not selected_rows or not table_data:
+        return no_update
+    new_oils = [table_data[i]['Oil'] for i in selected_rows]
+    current = current_oils or []
+    return list(dict.fromkeys(current + new_oils))
 
 
 if __name__ == '__main__':
