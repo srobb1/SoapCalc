@@ -6,7 +6,7 @@ Additive data and configuration for HTFHP soap making
 pcsf_oils = (
     "Argan Oil", "Apricot Kernal Oil", "Coconut Oil", "Olive Oil",
     "Sweet Almond Oil", "Cocoa Butter", "Shea Butter", "Jojoba Oil",
-    "Aloe Butter", "Mango Button", "Kokum Butter", "Grapeseed Oil"
+    "Aloe Butter", "Mango Butter", "Kokum Butter", "Grapeseed Oil"
 )
 
 # Initial data for the additives DataTable
